@@ -36,7 +36,9 @@ API base: `http://localhost:5000`
 
 Roles: `patient`, `doctor`, `assistant`, `phlebotomist`, `admin`.
 
-## Tests
+## Tests (QA — auth epic)
+
+Integration tests cover registration, login, logout, password reset, RBAC, and profile (`test/auth.test.js`).
 
 ```bash
 npm test
