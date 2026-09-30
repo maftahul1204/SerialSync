@@ -3,6 +3,8 @@
 Multi-location doctor appointment booking and real-time queue tracker (MERN / Next.js).  
 University of Asia Pacific — CSE 314.
 
+Serial Sync streamlines outpatient scheduling, live queue tracking, and diagnostic workflows for patients, doctors, and clinic staff.
+
 ## Repository layout
 
 | Path        | Stack              | Owner (branch)   |
