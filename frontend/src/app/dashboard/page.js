@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
+import AppHeader from '@/components/AppHeader';
 import { authApi } from '@/lib/api';
 
 export default function DashboardPage() {
@@ -36,18 +37,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <span className="text-lg font-semibold text-teal-700">SerialSync</span>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
-          >
-            Log out
-          </button>
-        </div>
-      </header>
+      <AppHeader active="dashboard" onLogout={handleLogout} />
       <main className="mx-auto max-w-5xl px-4 py-10">
         <Alert message={error} />
         <h1 className="text-2xl font-bold text-slate-900">Welcome, {user.fullName}</h1>
