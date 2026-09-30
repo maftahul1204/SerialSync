@@ -1,4 +1,6 @@
 .cursor/
+.githooks/
+scripts/
 node_modules/
 .next/
 dist/

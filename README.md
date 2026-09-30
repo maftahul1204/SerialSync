@@ -14,7 +14,7 @@ Serial Sync streamlines outpatient scheduling, live queue tracking, and diagnost
 
 ## Team git (one laptop)
 
-See **[TEAM_GIT.md](./TEAM_GIT.md)** — branch per person, `./scripts/team-work.sh <name>` before each commit.
+See **[TEAM_GIT.md](./TEAM_GIT.md)** — branch per person; set `git config user.name` before each commit on the shared laptop.
 
 ## Current milestone
 
