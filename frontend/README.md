@@ -25,3 +25,9 @@ Open [http://localhost:3000](http://localhost:3000). API defaults to `http://loc
 | `/profile` | Edit name and phone |
 
 Cookies from the API are sent with `credentials: 'include'`.
+
+## Client validation & QA
+
+- Shared validators: `src/lib/validation.js` (used on login/register before API calls).
+- Unit tests: `npm test`
+- Manual browser checklist: [../docs/MANUAL_QA_AUTH.md](../docs/MANUAL_QA_AUTH.md)

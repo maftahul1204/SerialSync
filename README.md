@@ -12,7 +12,7 @@ SerialSync reduces clinic waiting uncertainty through online serial booking, liv
 | FM Maftahul Jannat | [maftahul1204](https://github.com/maftahul1204) | `jannat` |
 | Md Adil Hossain | [Adil1109](https://github.com/Adil1109) | `adil` |
 | Rohan Hasan Khan | [Rohan108](https://github.com/Rohan108) | `rohan` |
-| Md Abu Rafe Mostak H. Fahim | [Fahim59-UAP](https://github.com/Fahim59-UAP) | `fahim` |
+| Md Abu Rafe Mostak H. Fahim | [Fahim59-UAP](https://github.com/Fahim59-UAP) | `fahim` (API + client QA) |
 
 Repository: [github.com/maftahul1204/SerialSync](https://github.com/maftahul1204/SerialSync)
 

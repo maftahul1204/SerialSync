@@ -7,6 +7,7 @@ import Alert from '@/components/Alert';
 import AuthShell from '@/components/AuthShell';
 import FormField from '@/components/FormField';
 import { authApi } from '@/lib/api';
+import { validateRegistration } from '@/lib/validation';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,6 +26,11 @@ export default function RegisterPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const clientError = validateRegistration(form);
+    if (clientError) {
+      setError(clientError);
+      return;
+    }
     setError('');
     setLoading(true);
     try {

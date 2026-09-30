@@ -9,7 +9,7 @@ SerialSync — CSE 314 (Fall 2026). This document maps delivered work to the Jir
 | FM Maftahul Jannat | Project Manager & docs | `jannat` |
 | Md Adil Hossain | Team Lead, backend API | `adil` |
 | Rohan Hasan Khan | Frontend auth UI | `rohan` |
-| Md Abu Rafe Mostak H. Fahim | QA, API tests | `fahim` |
+| Md Abu Rafe Mostak H. Fahim | QA, API tests, client validation | `fahim` |
 
 ## Deliverables
 
@@ -21,7 +21,7 @@ SerialSync — CSE 314 (Fall 2026). This document maps delivered work to the Jir
 | SCRUM-10 / 99 | Password management | forgot / reset / change password API + UI |
 | SCRUM-11 / 104 | RBAC | roles on `User`, middleware, admin route |
 | SCRUM-12 / 106 | Profile | `GET/PATCH /api/users/me`, `/profile` |
-| SCRUM-94, 96, 98, 100, 105, 107 | Test sub-tasks | `backend/test/auth.test.js` |
+| SCRUM-94, 96, 98, 100, 105, 107 | Test sub-tasks | `backend/test/auth.test.js`, `frontend/test/validation.test.js` |
 
 ## Verification
 

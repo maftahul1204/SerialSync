@@ -7,6 +7,7 @@ import Alert from '@/components/Alert';
 import AuthShell from '@/components/AuthShell';
 import FormField from '@/components/FormField';
 import { authApi } from '@/lib/api';
+import { validateLogin } from '@/lib/validation';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +18,11 @@ export default function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const clientError = validateLogin({ email, password });
+    if (clientError) {
+      setError(clientError);
+      return;
+    }
     setError('');
     setLoading(true);
     try {
