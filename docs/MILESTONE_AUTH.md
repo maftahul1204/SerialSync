@@ -2,14 +2,14 @@
 
 SerialSync — CSE 314 (Fall 2026). This document maps delivered work to the Jira epic.
 
-## Team
+## Team contributions
 
-| Member | Role | Branch |
-|--------|------|--------|
-| FM Maftahul Jannat | Project Manager & docs | `jannat` |
-| Md Adil Hossain | Team Lead, backend API | `adil` |
-| Rohan Hasan Khan | Frontend auth UI | `rohan` |
-| Md Abu Rafe Mostak H. Fahim | QA, API tests, client validation | `fahim` |
+| Member | Role |
+|--------|------|
+| FM Maftahul Jannat | Project management, documentation, profile UX |
+| Md Adil Hossain | Backend API, authentication, RBAC |
+| Rohan Hasan Khan | Authentication UI (Next.js) |
+| Md Abu Rafe Mostak H. Fahim | Integration tests, client validation, QA checklist |
 
 ## Deliverables
 
@@ -27,10 +27,10 @@ SerialSync — CSE 314 (Fall 2026). This document maps delivered work to the Jir
 
 ```bash
 cd backend && npm test
-cd frontend && npm run build
+cd frontend && npm test && npm run build
 ```
 
-Manual: run MongoDB, `npm run dev` in `backend` and `frontend`, register → dashboard → profile → logout.
+Manual browser checks: [MANUAL_QA_AUTH.md](./MANUAL_QA_AUTH.md)
 
 ## Next milestone
 

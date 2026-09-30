@@ -7,12 +7,12 @@ SerialSync reduces clinic waiting uncertainty through online serial booking, liv
 
 ## Team
 
-| Name | GitHub | Branch |
-|------|--------|--------|
-| FM Maftahul Jannat | [maftahul1204](https://github.com/maftahul1204) | `jannat` |
-| Md Adil Hossain | [Adil1109](https://github.com/Adil1109) | `adil` |
-| Rohan Hasan Khan | [Rohan108](https://github.com/Rohan108) | `rohan` |
-| Md Abu Rafe Mostak H. Fahim | [Fahim59-UAP](https://github.com/Fahim59-UAP) | `fahim` (API + client QA) |
+| Name | GitHub | Role |
+|------|--------|------|
+| FM Maftahul Jannat | [maftahul1204](https://github.com/maftahul1204) | Project manager & documentation |
+| Md Adil Hossain | [Adil1109](https://github.com/Adil1109) | Team lead, backend architecture |
+| Rohan Hasan Khan | [Rohan108](https://github.com/Rohan108) | Frontend development |
+| Md Abu Rafe Mostak H. Fahim | [Fahim59-UAP](https://github.com/Fahim59-UAP) | QA & automated testing |
 
 Repository: [github.com/maftahul1204/SerialSync](https://github.com/maftahul1204/SerialSync)
 
@@ -48,13 +48,12 @@ Backend `CLIENT_URL` should match the frontend origin (`http://localhost:3000`).
 ## Current milestone — Authentication & user management
 
 Completed scope: registration, login, logout, password reset, RBAC, profile.  
-See **[docs/MILESTONE_AUTH.md](./docs/MILESTONE_AUTH.md)** for Jira mapping and test commands.
+See **[docs/MILESTONE_AUTH.md](./docs/MILESTONE_AUTH.md)** for requirement mapping and test commands.
 
 | Layer | Docs |
 |-------|------|
 | API | [backend/README.md](./backend/README.md) |
 | Web | [frontend/README.md](./frontend/README.md) |
-| Git (shared laptop) | [TEAM_GIT.md](./TEAM_GIT.md) |
 
 ## License
 
