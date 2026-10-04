@@ -9,7 +9,11 @@ function errorHandler(err, req, res, next) {
   }
 
   if (err.code === 11000) {
-    return res.status(409).json({ success: false, message: 'Email already registered' });
+    const message =
+      err.keyPattern && err.keyPattern.name
+        ? 'A chamber with this name already exists'
+        : 'Duplicate key error';
+    return res.status(409).json({ success: false, message });
   }
 
   console.error(err);
