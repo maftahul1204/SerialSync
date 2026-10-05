@@ -20,6 +20,17 @@ async function clearUsers() {
   await User.deleteMany({});
 }
 
+async function clearScheduleData() {
+  const { User } = require('../../src/models/User');
+  const { Chamber } = require('../../src/models/Chamber');
+  const { DoctorSchedule } = require('../../src/models/DoctorSchedule');
+  const { SlotBooking } = require('../../src/models/SlotBooking');
+  await SlotBooking.deleteMany({});
+  await DoctorSchedule.deleteMany({});
+  await Chamber.deleteMany({});
+  await User.deleteMany({});
+}
+
 async function disconnectTestDb() {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
@@ -30,4 +41,4 @@ async function disconnectTestDb() {
   }
 }
 
-module.exports = { connectTestDb, clearUsers, disconnectTestDb };
+module.exports = { connectTestDb, clearUsers, clearScheduleData, disconnectTestDb };
