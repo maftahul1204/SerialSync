@@ -52,8 +52,17 @@ export default function DashboardPage() {
             <h2 className="font-semibold text-slate-900">Profile</h2>
             <p className="mt-1 text-sm text-slate-500">View and update your account details</p>
           </Link>
+          {(user.role === 'doctor' || user.role === 'admin') && (
+            <Link
+              href="/dashboard/schedule"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-300"
+            >
+              <h2 className="font-semibold text-slate-900">Schedule</h2>
+              <p className="mt-1 text-sm text-slate-500">Chambers, fees, and weekly availability</p>
+            </Link>
+          )}
           <div className="rounded-xl border border-dashed border-slate-300 bg-white/60 p-5 text-sm text-slate-500">
-            Queue booking and live tracker modules will appear here in the next sprint.
+            Queue tracker and full booking flow still to do in later sprints.
           </div>
         </div>
       </main>
