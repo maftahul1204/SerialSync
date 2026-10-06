@@ -19,6 +19,9 @@ export default function AppHeader({ onLogout, active }) {
           <Link href="/profile" className={linkClass('profile')}>
             Profile
           </Link>
+          <Link href="/dashboard/schedule" className={linkClass('schedule')}>
+            Schedule
+          </Link>
           {onLogout ? (
             <button
               type="button"
