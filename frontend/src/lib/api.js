@@ -1,7 +1,9 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050';
 
 async function api(path, { method = 'GET', body, headers = {} } = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: 'include',
     headers: {
@@ -9,7 +11,14 @@ async function api(path, { method = 'GET', body, headers = {} } = {}) {
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
-  });
+    });
+  } catch {
+    const err = new Error(
+      `Cannot reach the API at ${API_BASE}. Start the backend (cd backend && npm run dev) and ensure NEXT_PUBLIC_API_URL matches its port.`
+    );
+    err.status = 0;
+    throw err;
+  }
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -33,6 +42,23 @@ export const authApi = {
 export const userApi = {
   getProfile: () => api('/api/users/me'),
   updateProfile: (payload) => api('/api/users/me', { method: 'PATCH', body: payload }),
+};
+
+export const adminApi = {
+  listDoctors: (status = 'pending') => api(`/api/admin/doctors?status=${encodeURIComponent(status)}`),
+  setDoctorApproval: (id, status) =>
+    api(`/api/admin/doctors/${id}/approval`, { method: 'PATCH', body: { status } }),
+};
+
+export const doctorsApi = {
+  search: ({ search = '', area = 'all', specialty = 'all' } = {}) => {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (area && area !== 'all') params.set('area', area);
+    if (specialty && specialty !== 'all') params.set('specialty', specialty);
+    const qs = params.toString();
+    return api(`/api/doctors${qs ? `?${qs}` : ''}`);
+  },
 };
 
 export const scheduleApi = {

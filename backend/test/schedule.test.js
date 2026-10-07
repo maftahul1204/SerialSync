@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
-const { connectTestDb, clearScheduleData, disconnectTestDb } = require('./helpers/testDb');
+const { connectTestDb, clearScheduleData, disconnectTestDb, approveDoctor } = require('./helpers/testDb');
 const { COOKIE_NAME } = require('../src/utils/jwt');
 
 let app;
@@ -34,7 +34,9 @@ async function registerDoctor() {
       password: 'password123',
       role: 'doctor',
     });
-  return { cookie: authCookie(res), user: res.body.user };
+  const user = res.body.user;
+  await approveDoctor(user.id);
+  return { cookie: authCookie(res), user };
 }
 
 async function registerPatient() {
