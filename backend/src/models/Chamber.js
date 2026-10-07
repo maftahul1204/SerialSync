@@ -24,6 +24,11 @@ const chamberSchema = new mongoose.Schema(
       trim: true,
       maxlength: 80,
     },
+    area: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+    },
     phone: {
       type: String,
       trim: true,
@@ -45,6 +50,7 @@ chamberSchema.methods.toPublicJSON = function toPublicJSON() {
     name: this.name,
     address: this.address || '',
     city: this.city || '',
+    area: this.area || '',
     phone: this.phone || '',
     isActive: this.isActive,
   };

@@ -14,7 +14,7 @@ async function listMyChambers(req, res, next) {
 
 async function createChamber(req, res, next) {
   try {
-    const { name, address, city, phone } = req.body;
+    const { name, address, city, area, phone } = req.body;
     if (!name) {
       return res.status(400).json({ success: false, message: 'Chamber name is required' });
     }
@@ -23,6 +23,7 @@ async function createChamber(req, res, next) {
       name,
       address,
       city,
+      area,
       phone,
     });
     return res.status(201).json({ success: true, chamber: chamber.toPublicJSON() });
@@ -37,10 +38,11 @@ async function updateChamber(req, res, next) {
     if (!chamber) {
       return res.status(404).json({ success: false, message: 'Chamber not found' });
     }
-    const { name, address, city, phone, isActive } = req.body;
+    const { name, address, city, area, phone, isActive } = req.body;
     if (name !== undefined) chamber.name = name;
     if (address !== undefined) chamber.address = address;
     if (city !== undefined) chamber.city = city;
+    if (area !== undefined) chamber.area = area;
     if (phone !== undefined) chamber.phone = phone;
     if (isActive !== undefined) chamber.isActive = Boolean(isActive);
     await chamber.save();

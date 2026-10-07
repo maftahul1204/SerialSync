@@ -41,4 +41,9 @@ async function disconnectTestDb() {
   }
 }
 
-module.exports = { connectTestDb, clearUsers, clearScheduleData, disconnectTestDb };
+async function approveDoctor(userId) {
+  const { User } = require('../../src/models/User');
+  await User.findByIdAndUpdate(userId, { doctorApprovalStatus: 'approved' });
+}
+
+module.exports = { connectTestDb, clearUsers, clearScheduleData, disconnectTestDb, approveDoctor };

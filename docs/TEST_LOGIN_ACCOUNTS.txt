@@ -1,0 +1,70 @@
+SerialSync — test login accounts (local development only)
+========================================================
+
+Default password for all accounts: TestPass123!
+
+Frontend: http://localhost:3000/login
+API:      http://localhost:5050 (or PORT from backend/.env)
+
+--- Accounts ---
+
+[Administrator]
+  Name:     SerialSync Admin
+  Email:    admin@serialsync.test
+  Password: TestPass123!
+  Role:     admin
+  User ID:  6ac6b56633a6b4ff805bbe98
+
+[Patient]
+  Name:     Adil Rahman
+  Email:    patient@serialsync.test
+  Password: TestPass123!
+  Role:     patient
+  User ID:  6ac6b56733a6b4ff805bbe9b
+
+[Doctor (approved)]
+  Name:     Dr. Nusrat Jahan
+  Email:    doctor.nusrat@serialsync.test
+  Password: TestPass123!
+  Role:     doctor
+  Approval: approved
+  Specialty: Cardiologist
+  User ID:  6ac6b56733a6b4ff805bbe9e
+
+[Doctor (approved)]
+  Name:     Dr. Tanveer Masud
+  Email:    doctor.tanveer@serialsync.test
+  Password: TestPass123!
+  Role:     doctor
+  Approval: approved
+  Specialty: General Surgeon
+  User ID:  6ac6b56733a6b4ff805bbea1
+
+[Doctor (pending — for admin approval testing)]
+  Name:     Dr. Pending Review
+  Email:    doctor.pending@serialsync.test
+  Password: TestPass123!
+  Role:     doctor
+  Approval: pending
+  Specialty: Physician
+  User ID:  6ac6b56733a6b4ff805bbea4
+
+[Clinic / queue assistant]
+  Name:     Green Life Clinic Desk
+  Email:    clinic@serialsync.test
+  Password: TestPass123!
+  Role:     assistant
+  User ID:  6ac6b56833a6b4ff805bbea7
+
+[Sample collector (phlebotomist)]
+  Name:     Rahim Collector
+  Email:    collector@serialsync.test
+  Password: TestPass123!
+  Role:     phlebotomist
+  User ID:  6ac6b56833a6b4ff805bbeaa
+
+Notes:
+- Patients sign in → /home (doctor search).
+- Doctors/admins → /dashboard. Pending doctors cannot use schedule until admin approves.
+- Approve pending doctors at /dashboard/admin (sign in as admin).
+- Clinic = assistant role; Collector = phlebotomist role (dashboard flows in later sprints).
