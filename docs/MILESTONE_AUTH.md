@@ -34,4 +34,4 @@ Manual browser checks: [MANUAL_QA_AUTH.md](./MANUAL_QA_AUTH.md)
 
 ## Next milestone
 
-Multi-location scheduling, live queue (Socket.io), and diagnostics modules per SRS.
+Live queue (Socket.io), patient booking flow UI, and diagnostics per SRS.
