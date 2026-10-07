@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 
 const ROLES = ['patient', 'doctor', 'assistant', 'phlebotomist', 'admin'];
+const DOCTOR_APPROVAL_STATUSES = ['pending', 'approved', 'rejected'];
 
 const userSchema = new mongoose.Schema(
   {
@@ -39,6 +40,20 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    doctorApprovalStatus: {
+      type: String,
+      enum: DOCTOR_APPROVAL_STATUSES,
+      default: undefined,
+    },
+    doctorProfile: {
+      specialtyTitle: { type: String, trim: true, maxlength: 80 },
+      specialtySlug: { type: String, trim: true, maxlength: 40 },
+      affiliations: { type: String, trim: true, maxlength: 200 },
+      roomLabel: { type: String, trim: true, maxlength: 80 },
+      rating: { type: Number, min: 0, max: 5, default: 4.8 },
+      avatarUrl: { type: String, trim: true, maxlength: 500 },
+      isOnline: { type: Boolean, default: true },
+    },
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
   },
@@ -54,7 +69,7 @@ userSchema.statics.hashPassword = async function hashPassword(plain) {
 };
 
 userSchema.methods.toSafeJSON = function toSafeJSON() {
-  return {
+  const base = {
     id: this._id.toString(),
     fullName: this.fullName,
     email: this.email,
@@ -63,8 +78,23 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
+  if (this.role === 'doctor') {
+    base.doctorApprovalStatus = this.doctorApprovalStatus || 'pending';
+  }
+  if (this.role === 'doctor' && this.doctorProfile) {
+    base.doctorProfile = {
+      specialtyTitle: this.doctorProfile.specialtyTitle || '',
+      specialtySlug: this.doctorProfile.specialtySlug || '',
+      affiliations: this.doctorProfile.affiliations || '',
+      roomLabel: this.doctorProfile.roomLabel || '',
+      rating: this.doctorProfile.rating ?? 4.8,
+      avatarUrl: this.doctorProfile.avatarUrl || '',
+      isOnline: this.doctorProfile.isOnline !== false,
+    };
+  }
+  return base;
 };
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = { User, ROLES };
+module.exports = { User, ROLES, DOCTOR_APPROVAL_STATUSES };
