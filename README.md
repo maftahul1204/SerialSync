@@ -45,10 +45,10 @@ npm run dev          # http://localhost:3000
 
 Backend `CLIENT_URL` should match the frontend origin (`http://localhost:3000`). Frontend `NEXT_PUBLIC_API_URL` should point to the API (`http://localhost:5000`).
 
-## Current milestone — Authentication & user management
+## Current milestone
 
-Completed scope: registration, login, logout, password reset, RBAC, profile.  
-See **[docs/MILESTONE_AUTH.md](./docs/MILESTONE_AUTH.md)** for requirement mapping and test commands.
+Sprint 2 — doctor chambers, weekly availability, conflict checks, and slot booking counts.  
+See [docs/MILESTONE_SCHEDULE.md](./docs/MILESTONE_SCHEDULE.md). Auth milestone: [docs/MILESTONE_AUTH.md](./docs/MILESTONE_AUTH.md).
 
 | Layer | Docs |
 |-------|------|
