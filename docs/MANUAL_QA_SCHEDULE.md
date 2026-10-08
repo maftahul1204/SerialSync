@@ -1,6 +1,6 @@
 # Manual QA — doctor schedules
 
-Run API on port 5000 and frontend on 3000 with Mongo up.
+Run API on port 5000 and frontend on 3000 with Mongo up. Resize the browser — schedule pages should stay readable on desktop (two-column forms at `lg`).
 
 ## Doctor
 
