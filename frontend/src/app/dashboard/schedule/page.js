@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
 import AppHeader from '@/components/AppHeader';
+import AppShell from '@/components/AppShell';
 import FormField from '@/components/FormField';
 import { authApi, scheduleApi } from '@/lib/api';
 import { validateCreateAvailability } from '@/lib/scheduleValidation';
@@ -128,40 +129,40 @@ export default function DoctorSchedulePage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">
+      <div className="ss-page flex items-center justify-center text-ss-muted">
         Loading…
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <AppHeader active="schedule" onLogout={handleLogout} />
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-bold text-slate-900">My schedule</h1>
-        <p className="mt-1 text-sm text-slate-600">Chambers and when you see patients each week.</p>
+    <AppShell header={<AppHeader active="schedule" onLogout={handleLogout} />}>
+        <p className="text-xs font-semibold uppercase tracking-wide text-ss-primary">Schedule portal</p>
+        <h1 className="mt-1 text-2xl font-bold text-ss-text">Multi-location chambers</h1>
+        <p className="mt-1 text-sm text-ss-muted">Weekly hours, fees, and slot capacity per hospital.</p>
         <Alert message={error} />
-        {message ? <p className="mt-4 text-sm text-teal-700">{message}</p> : null}
+        {message ? <p className="mt-4 text-sm text-ss-secondary">{message}</p> : null}
 
-        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-semibold text-slate-900">Add chamber</h2>
+        <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <section className="ss-card-pad">
+          <h2 className="font-semibold text-ss-text">Add chamber</h2>
           <form onSubmit={handleCreateChamber} className="mt-4 grid gap-4 sm:grid-cols-3">
             <FormField label="Name" value={chamberForm.name} onChange={(e) => setChamberForm({ ...chamberForm, name: e.target.value })} required />
             <FormField label="Address" value={chamberForm.address} onChange={(e) => setChamberForm({ ...chamberForm, address: e.target.value })} />
             <FormField label="City" value={chamberForm.city} onChange={(e) => setChamberForm({ ...chamberForm, city: e.target.value })} />
-            <button type="submit" className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 sm:col-span-3 sm:w-fit">
+            <button type="submit" className="ss-btn-primary sm:col-span-3 sm:w-fit">
               Save chamber
             </button>
           </form>
         </section>
 
-        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-semibold text-slate-900">New availability</h2>
+        <section className="ss-card-pad">
+          <h2 className="font-semibold text-ss-text">New availability</h2>
           <form onSubmit={handleCreateSchedule} className="mt-4 space-y-4">
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="ss-label">
               Chamber
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="ss-input mt-1"
                 value={form.chamberId}
                 onChange={(e) => setForm({ ...form, chamberId: e.target.value })}
                 required
@@ -175,7 +176,7 @@ export default function DoctorSchedulePage() {
               </select>
             </label>
             <div>
-              <span className="text-sm font-medium text-slate-700">Days</span>
+              <span className="ss-label">Days</span>
               <div className="mt-2 flex flex-wrap gap-2">
                 {DAY_LABELS.map((label, i) => (
                   <button
@@ -183,7 +184,9 @@ export default function DoctorSchedulePage() {
                     type="button"
                     onClick={() => toggleDay(i)}
                     className={`rounded-full px-3 py-1 text-sm ${
-                      form.daysOfWeek.includes(i) ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700'
+                      form.daysOfWeek.includes(i)
+                        ? 'bg-ss-primary font-medium text-slate-900'
+                        : 'bg-ss-surface-elevated text-ss-muted'
                     }`}
                   >
                     {label}
@@ -197,38 +200,41 @@ export default function DoctorSchedulePage() {
               <FormField label="Fee (BDT)" type="number" min="0" value={form.consultationFee} onChange={(e) => setForm({ ...form, consultationFee: e.target.value })} required />
               <FormField label="Patients per slot" type="number" min="1" value={form.patientsPerSlot} onChange={(e) => setForm({ ...form, patientsPerSlot: e.target.value })} />
             </div>
-            <button type="submit" className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700">
-              Create availability
+            <button type="submit" className="ss-btn-primary">
+              Update schedule
             </button>
           </form>
         </section>
+        </div>
 
         <section className="mt-8">
-          <h2 className="font-semibold text-slate-900">Your schedules</h2>
+          <h2 className="font-semibold text-ss-text">Your schedules</h2>
           <ul className="mt-4 space-y-3">
             {schedules.map((s) => (
-              <li key={s.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+              <li key={s.id} className="ss-card flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="font-medium text-slate-900">{s.chamber?.name || 'Chamber'}</p>
-                  <p className="text-sm text-slate-600">
-                    {s.daysOfWeek.map((d) => DAY_LABELS[d]).join(', ')} · {s.startTime}–{s.endTime} · ৳{s.consultationFee}
+                  <p className="font-medium text-ss-text">{s.chamber?.name || 'Chamber'}</p>
+                  <p className="text-sm text-ss-muted">
+                    {s.daysOfWeek.map((d) => DAY_LABELS[d]).join(', ')} · {s.startTime}–{s.endTime} · ৳
+                    {s.consultationFee}
                   </p>
-                  <p className="text-xs capitalize text-slate-500">Status: {s.status}</p>
+                  <span className={s.status === 'active' ? 'ss-badge-active mt-1' : 'ss-badge-inactive mt-1'}>
+                    {s.status}
+                  </span>
                 </div>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => handleToggleStatus(s)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
+                  <button type="button" onClick={() => handleToggleStatus(s)} className="ss-btn-secondary px-3 py-1.5">
                     {s.status === 'active' ? 'Deactivate' : 'Activate'}
                   </button>
-                  <button type="button" onClick={() => handleDelete(s.id)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-700">
+                  <button type="button" onClick={() => handleDelete(s.id)} className="ss-btn-danger-outline">
                     Delete
                   </button>
                 </div>
               </li>
             ))}
-            {!schedules.length ? <li className="text-sm text-slate-500">No schedules yet.</li> : null}
+            {!schedules.length ? <li className="text-sm text-ss-muted">No schedules yet.</li> : null}
           </ul>
         </section>
-      </main>
-    </div>
+    </AppShell>
   );
 }
