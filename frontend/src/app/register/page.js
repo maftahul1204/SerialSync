@@ -4,13 +4,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Alert from '@/components/Alert';
-import AuthShell from '@/components/AuthShell';
+import AuthLayout from '@/components/auth/AuthLayout';
+import IconField, { LockIcon, MailIcon, PhoneIcon } from '@/components/auth/IconField';
 import FormField from '@/components/FormField';
 import { authApi } from '@/lib/api';
 import { validateRegistration } from '@/lib/validation';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [role, setRole] = useState('patient');
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -34,7 +36,7 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await authApi.register(form);
+      await authApi.register({ ...form, role });
       router.push('/dashboard');
     } catch (err) {
       setError(err.message || 'Registration failed');
@@ -44,34 +46,37 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell title="Create account" subtitle="Register as a patient to book serials and track queues">
+    <AuthLayout
+      role={role}
+      onRoleChange={setRole}
+      panelTitle="Create your account"
+      panelSubtitle="Pick a role, then fill in your details."
+    >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <Alert message={error} />
-        <FormField
-          label="Full name"
-          id="fullName"
-          value={form.fullName}
-          onChange={update('fullName')}
-          required
-          autoComplete="name"
-        />
-        <FormField
-          label="Email"
+        <FormField label="Full name" id="fullName" value={form.fullName} onChange={update('fullName')} required autoComplete="name" />
+        <IconField
+          label="Email address"
           id="email"
           type="email"
           value={form.email}
           onChange={update('email')}
           required
           autoComplete="email"
+          placeholder="you@example.com"
+          icon={<MailIcon />}
         />
-        <FormField
-          label="Phone (optional)"
+        <IconField
+          label="Mobile phone number"
           id="phone"
+          type="tel"
           value={form.phone}
           onChange={update('phone')}
           autoComplete="tel"
+          placeholder="017XXXXXXXX"
+          icon={<PhoneIcon />}
         />
-        <FormField
+        <IconField
           label="Password"
           id="password"
           type="password"
@@ -80,21 +85,19 @@ export default function RegisterPage() {
           required
           autoComplete="new-password"
           placeholder="At least 8 characters"
+          icon={<LockIcon />}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-teal-600 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60"
-        >
-          {loading ? 'Creating account…' : 'Register'}
+        <button type="submit" disabled={loading} className="ss-btn-primary w-full">
+          {loading ? 'Creating account…' : 'Continue to My Dashboard'}
+          {!loading ? <span aria-hidden>→</span> : null}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600">
+      <p className="mt-6 text-center text-sm text-ss-muted">
         Already have an account?{' '}
-        <Link href="/login" className="font-semibold text-teal-700 hover:text-teal-800">
+        <Link href="/login" className="ss-link">
           Sign in
         </Link>
       </p>
-    </AuthShell>
+    </AuthLayout>
   );
 }

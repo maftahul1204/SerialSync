@@ -1,18 +1,17 @@
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
 
 export default function AppHeader({ onLogout, active }) {
   const linkClass = (key) =>
     key === active
-      ? 'text-sm font-semibold text-teal-700'
-      : 'text-sm font-medium text-slate-600 hover:text-slate-900';
+      ? 'text-sm font-semibold text-ss-primary'
+      : 'text-sm font-medium text-ss-muted hover:text-ss-text';
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
-        <Link href="/dashboard" className="text-lg font-semibold text-teal-700">
-          SerialSync
-        </Link>
-        <nav className="flex items-center gap-4">
+    <header className="border-b border-ss-border bg-ss-surface/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <BrandMark href="/dashboard" />
+        <nav className="flex flex-wrap items-center justify-end gap-3 sm:gap-5">
           <Link href="/dashboard" className={linkClass('dashboard')}>
             Dashboard
           </Link>
@@ -23,11 +22,7 @@ export default function AppHeader({ onLogout, active }) {
             Schedule
           </Link>
           {onLogout ? (
-            <button
-              type="button"
-              onClick={onLogout}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
+            <button type="button" onClick={onLogout} className="ss-btn-secondary px-3 py-1.5 text-sm">
               Log out
             </button>
           ) : null}

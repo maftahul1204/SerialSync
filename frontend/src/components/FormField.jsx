@@ -1,6 +1,16 @@
-export default function FormField({ label, id, type = 'text', value, onChange, required, autoComplete, placeholder }) {
+export default function FormField({
+  label,
+  id,
+  type = 'text',
+  value,
+  onChange,
+  required,
+  autoComplete,
+  placeholder,
+  min,
+}) {
   return (
-    <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+    <label htmlFor={id} className="ss-label">
       {label}
       <input
         id={id}
@@ -11,7 +21,8 @@ export default function FormField({ label, id, type = 'text', value, onChange, r
         required={required}
         autoComplete={autoComplete}
         placeholder={placeholder}
-        className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none ring-teal-500/30 placeholder:text-slate-400 focus:border-teal-500 focus:ring-2"
+        min={min}
+        className="ss-input mt-1.5"
       />
     </label>
   );

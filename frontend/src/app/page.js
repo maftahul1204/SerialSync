@@ -1,27 +1,28 @@
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-sky-50 to-teal-50 px-4">
-      <div className="max-w-lg text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">SerialSync</p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Healthcare queues, made visible</h1>
-        <p className="mt-4 text-slate-600">
-          Sign in or register to manage your account. Booking and live queue features arrive in the next milestone.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-lg bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-700"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-          >
-            Register
-          </Link>
+    <div className="ss-auth-bg ss-page flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-4xl gap-10 text-center lg:grid-cols-2 lg:text-left">
+        <div className="flex flex-col justify-center">
+          <BrandMark href="/" />
+          <h1 className="mt-8 text-3xl font-bold text-ss-text sm:text-4xl lg:mt-10">Healthcare queues, made visible</h1>
+          <p className="mt-4 text-ss-muted lg:max-w-md">
+            Sign in or register to manage your account. Same Figma look on phone and desktop — booking and live queue
+            screens come in later sprints.
+          </p>
+        </div>
+        <div className="ss-card flex flex-col justify-center p-8">
+          <p className="text-sm font-medium text-ss-text">Get started</p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <Link href="/login" className="ss-btn-primary px-6 text-center">
+              Sign in
+            </Link>
+            <Link href="/register" className="ss-btn-secondary px-6 text-center">
+              Register
+            </Link>
+          </div>
         </div>
       </div>
     </div>

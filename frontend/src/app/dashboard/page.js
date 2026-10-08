@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
 import AppHeader from '@/components/AppHeader';
+import AppShell from '@/components/AppShell';
 import { authApi } from '@/lib/api';
 
 export default function DashboardPage() {
@@ -29,43 +30,40 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">
+      <div className="ss-page flex items-center justify-center text-ss-muted">
         Loading dashboard…
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <AppHeader active="dashboard" onLogout={handleLogout} />
-      <main className="mx-auto max-w-5xl px-4 py-10">
+    <AppShell header={<AppHeader active="dashboard" onLogout={handleLogout} />}>
         <Alert message={error} />
-        <h1 className="text-2xl font-bold text-slate-900">Welcome, {user.fullName}</h1>
-        <p className="mt-2 text-slate-600">
-          Signed in as <span className="font-medium capitalize">{user.role}</span> · {user.email}
+        <h1 className="text-2xl font-bold text-ss-text">Welcome, {user.fullName}</h1>
+        <p className="mt-2 text-ss-muted">
+          Signed in as <span className="font-medium capitalize text-ss-text">{user.role}</span> · {user.email}
         </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/profile"
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-300"
+            className="ss-card block p-5 transition hover:border-ss-primary/50"
           >
-            <h2 className="font-semibold text-slate-900">Profile</h2>
-            <p className="mt-1 text-sm text-slate-500">View and update your account details</p>
+            <h2 className="font-semibold text-ss-text">Profile</h2>
+            <p className="mt-1 text-sm text-ss-muted">View and update your account details</p>
           </Link>
           {(user.role === 'doctor' || user.role === 'admin') && (
             <Link
               href="/dashboard/schedule"
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-300"
+              className="ss-card block p-5 transition hover:border-ss-primary/50"
             >
-              <h2 className="font-semibold text-slate-900">Schedule</h2>
-              <p className="mt-1 text-sm text-slate-500">Chambers, fees, and weekly availability</p>
+              <h2 className="font-semibold text-ss-text">Schedule portal</h2>
+              <p className="mt-1 text-sm text-ss-muted">Chambers, fees, and weekly availability</p>
             </Link>
           )}
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white/60 p-5 text-sm text-slate-500">
+          <div className="rounded-xl border border-dashed border-ss-border bg-ss-surface/50 p-5 text-sm text-ss-muted lg:col-span-3">
             Queue tracker and full booking flow still to do in later sprints.
           </div>
         </div>
-      </main>
-    </div>
+    </AppShell>
   );
 }

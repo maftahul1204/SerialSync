@@ -32,6 +32,8 @@ cd frontend && npm test && npm run build
 
 Manual browser checks: [MANUAL_QA_AUTH.md](./MANUAL_QA_AUTH.md)
 
+Shared UI kit: [DESIGN.md](./DESIGN.md).
+
 ## Next milestone
 
 Live queue (Socket.io), patient booking flow UI, and diagnostics per SRS.

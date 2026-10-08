@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
+/* SerialSync Figma tokens — use for all sprints */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ss-bg: #0f172a;
+  --ss-surface: #1e293b;
+  --ss-surface-elevated: #334155;
+  --ss-primary: #38bdf8;
+  --ss-secondary: #10b981;
+  --ss-tertiary: #f59e0b;
+  --ss-border: #334155;
+  --ss-muted: #94a3b8;
+  --ss-text: #f1f5f9;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ss-bg: #0f172a;
+  --color-ss-surface: #1e293b;
+  --color-ss-surface-elevated: #334155;
+  --color-ss-primary: #38bdf8;
+  --color-ss-secondary: #10b981;
+  --color-ss-tertiary: #f59e0b;
+  --color-ss-border: #334155;
+  --color-ss-muted: #94a3b8;
+  --color-ss-text: #f1f5f9;
+  --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ss-bg);
+  color: var(--ss-text);
+  font-family: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.ss-auth-bg {
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 55%),
+    linear-gradient(180deg, #0f172a 0%, #020617 100%);
+}
+
+@layer components {
+  .ss-page {
+    @apply min-h-screen bg-ss-bg text-ss-text;
+  }
+
+  .ss-card {
+    @apply rounded-xl border border-ss-border bg-ss-surface;
+  }
+
+  .ss-card-pad {
+    @apply rounded-xl border border-ss-border bg-ss-surface p-6;
+  }
+
+  .ss-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-ss-primary px-4 py-3 text-sm font-semibold text-slate-900 shadow-[0_0_24px_rgba(56,189,248,0.35)] transition hover:brightness-110 disabled:opacity-60;
+  }
+
+  .ss-btn-otp {
+    @apply flex w-full items-center justify-center gap-2 rounded-xl border border-ss-border bg-ss-surface px-4 py-3 text-sm font-medium text-ss-text transition hover:border-ss-muted;
+  }
+
+  .ss-divider {
+    @apply relative my-6 text-center text-xs text-ss-muted;
+  }
+
+  .ss-divider::before,
+  .ss-divider::after {
+    content: '';
+    @apply absolute top-1/2 h-px w-[38%] bg-ss-border;
+  }
+
+  .ss-divider::before {
+    @apply left-0;
+  }
+
+  .ss-divider::after {
+    @apply right-0;
+  }
+
+  .ss-btn-secondary {
+    @apply rounded-xl border border-ss-border bg-ss-surface-elevated px-4 py-2.5 text-sm font-medium text-ss-text transition hover:border-ss-muted;
+  }
+
+  .ss-btn-danger-outline {
+    @apply rounded-xl border border-red-500/40 px-3 py-1.5 text-sm text-red-300 hover:bg-red-500/10;
+  }
+
+  .ss-input {
+    @apply w-full rounded-xl border border-ss-border bg-ss-surface-elevated px-3 py-2.5 text-ss-text outline-none placeholder:text-ss-muted focus:border-ss-primary focus:ring-2 focus:ring-ss-primary/25;
+  }
+
+  .ss-label {
+    @apply block text-sm font-medium text-ss-text;
+  }
+
+  .ss-link {
+    @apply font-medium text-ss-primary hover:brightness-110;
+  }
+
+  .ss-muted {
+    @apply text-ss-muted;
+  }
+
+  .ss-badge-active {
+    @apply inline-flex rounded-full bg-ss-secondary/20 px-2.5 py-0.5 text-xs font-semibold text-ss-secondary;
+  }
+
+  .ss-badge-inactive {
+    @apply inline-flex rounded-full bg-ss-surface-elevated px-2.5 py-0.5 text-xs font-semibold text-ss-muted;
+  }
 }

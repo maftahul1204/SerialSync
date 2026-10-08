@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import Alert from '@/components/Alert';
-import AuthShell from '@/components/AuthShell';
-import FormField from '@/components/FormField';
+import AuthLayout from '@/components/auth/AuthLayout';
+import IconField, { MailIcon } from '@/components/auth/IconField';
 import { authApi } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
@@ -34,40 +34,42 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthShell title="Reset password" subtitle="We will email reset steps when mail is configured">
+    <AuthLayout
+      showRoles={false}
+      showTrust={false}
+      panelTitle="Reset your PIN"
+      panelSubtitle="We will email reset steps when mail is configured."
+    >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <Alert message={error} />
         <Alert type="success" message={success} />
-        <FormField
-          label="Email"
+        <IconField
+          label="Email address"
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
+          icon={<MailIcon />}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-60"
-        >
+        <button type="submit" disabled={loading} className="ss-btn-primary w-full">
           {loading ? 'Sending…' : 'Send reset link'}
         </button>
       </form>
       {devToken ? (
-        <p className="mt-4 rounded-lg bg-slate-100 p-3 text-xs text-slate-700">
+        <p className="mt-4 rounded-xl border border-ss-border bg-ss-surface-elevated p-3 text-xs text-ss-muted">
           Dev reset token:{' '}
-          <Link href={`/reset-password?token=${devToken}`} className="break-all font-mono text-teal-800 underline">
+          <Link href={`/reset-password?token=${devToken}`} className="ss-link break-all font-mono">
             use in reset form
           </Link>
         </p>
       ) : null}
       <p className="mt-6 text-center text-sm">
-        <Link href="/login" className="font-medium text-teal-700 hover:text-teal-800">
+        <Link href="/login" className="ss-link">
           Back to sign in
         </Link>
       </p>
-    </AuthShell>
+    </AuthLayout>
   );
 }
