@@ -2,10 +2,10 @@ export default function Alert({ type = 'error', message }) {
   if (!message) return null;
   const styles =
     type === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-      : 'border-red-200 bg-red-50 text-red-800';
+      ? 'border-ss-secondary/40 bg-ss-secondary/10 text-ss-secondary'
+      : 'border-red-500/40 bg-red-500/10 text-red-200';
   return (
-    <div className={`rounded-lg border px-3 py-2 text-sm ${styles}`} role="alert">
+    <div className={`rounded-xl border px-3 py-2 text-sm ${styles}`} role="alert">
       {message}
     </div>
   );
