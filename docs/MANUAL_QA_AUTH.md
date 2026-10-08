@@ -12,6 +12,7 @@ Checklist for browser testing (QA). Run backend and frontend dev servers first.
 | 6 | `/forgot-password` with registered email | Success message; dev token link if API in development |
 | 7 | Complete reset flow with token | Can log in with new password |
 | 8 | Visit `/dashboard` without cookie | Redirect to `/login` |
+| 9 | `/login` on phone width and on desktop (`lg`) | Role grid + form usable; desktop shows trust panel on the left |
 
 Automated API coverage: `cd backend && npm test`  
 Client validation unit tests: `cd frontend && npm test`
