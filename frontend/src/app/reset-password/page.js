@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import Alert from '@/components/Alert';
-import AuthShell from '@/components/AuthShell';
+import AuthLayout from '@/components/auth/AuthLayout';
+import IconField, { LockIcon } from '@/components/auth/IconField';
 import FormField from '@/components/FormField';
 import { authApi } from '@/lib/api';
 
@@ -34,12 +35,17 @@ function ResetForm() {
   }
 
   return (
-    <AuthShell title="Choose new password" subtitle="Enter the token from your reset email">
+    <AuthLayout
+      showRoles={false}
+      showTrust={false}
+      panelTitle="Choose new password"
+      panelSubtitle="Enter the token from your reset email."
+    >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <Alert message={error} />
         <Alert type="success" message={success} />
         <FormField label="Reset token" id="token" value={token} onChange={(e) => setToken(e.target.value)} required />
-        <FormField
+        <IconField
           label="New password"
           id="password"
           type="password"
@@ -47,27 +53,24 @@ function ResetForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="new-password"
+          icon={<LockIcon />}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-60"
-        >
+        <button type="submit" disabled={loading} className="ss-btn-primary w-full">
           {loading ? 'Updating…' : 'Update password'}
         </button>
       </form>
       <p className="mt-6 text-center text-sm">
-        <Link href="/login" className="font-medium text-teal-700">
+        <Link href="/login" className="ss-link">
           Back to sign in
         </Link>
       </p>
-    </AuthShell>
+    </AuthLayout>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-slate-600">Loading…</div>}>
+    <Suspense fallback={<div className="ss-auth-bg ss-page p-8 text-center text-ss-muted">Loading…</div>}>
       <ResetForm />
     </Suspense>
   );
