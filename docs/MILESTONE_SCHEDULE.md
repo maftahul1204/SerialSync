@@ -34,3 +34,5 @@ cd frontend && npm run build
 ```
 
 Browser pass: [MANUAL_QA_SCHEDULE.md](./MANUAL_QA_SCHEDULE.md)
+
+UI tokens: [DESIGN.md](./DESIGN.md) (Figma colors + `ss-*` classes).
