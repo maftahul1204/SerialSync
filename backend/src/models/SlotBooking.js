@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { APPOINTMENT_STATUSES } = require('../utils/bookingValidation');
 
 const slotBookingSchema = new mongoose.Schema(
   {
@@ -37,6 +38,27 @@ const slotBookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
+    },
+    serialNumber: {
+      type: Number,
+      min: 1,
+    },
+    status: {
+      type: String,
+      enum: APPOINTMENT_STATUSES,
+      default: 'confirmed',
+      index: true,
+    },
+    confirmationCode: {
+      type: String,
+      trim: true,
+      maxlength: 32,
+    },
+    patientNote: {
+      type: String,
+      trim: true,
+      maxlength: 300,
     },
   },
   { timestamps: true }
@@ -44,6 +66,11 @@ const slotBookingSchema = new mongoose.Schema(
 
 slotBookingSchema.index({ schedule: 1, date: 1, slotStart: 1 });
 slotBookingSchema.index({ doctor: 1, date: 1, slotStart: 1 });
+slotBookingSchema.index({ patient: 1, date: -1 });
+slotBookingSchema.index(
+  { patient: 1, schedule: 1, date: 1, slotStart: 1 },
+  { unique: true, partialFilterExpression: { status: { $ne: 'cancelled' } } }
+);
 
 const SlotBooking = mongoose.model('SlotBooking', slotBookingSchema);
 
