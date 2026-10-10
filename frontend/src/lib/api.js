@@ -50,7 +50,17 @@ export const adminApi = {
     api(`/api/admin/doctors/${id}/approval`, { method: 'PATCH', body: { status } }),
 };
 
+export const appointmentsApi = {
+  listMine: (status) => {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : '';
+    return api(`/api/appointments/me${qs}`);
+  },
+  get: (id) => api(`/api/appointments/${id}`),
+  cancel: (id) => api(`/api/appointments/${id}/cancel`, { method: 'POST' }),
+};
+
 export const doctorsApi = {
+  getProfile: (doctorId) => api(`/api/doctors/${doctorId}`),
   search: ({ search = '', area = 'all', specialty = 'all' } = {}) => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
