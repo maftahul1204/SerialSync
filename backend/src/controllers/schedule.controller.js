@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { User } = require('../models/User');
 const { isDoctorListedPublicly } = require('../middleware/doctorApproval');
+const { nextSerialForDoctorDay, buildConfirmationCode } = require('../utils/appointmentSerial');
+const { validateBookingRequest } = require('../utils/bookingValidation');
+const { toAppointmentJSON } = require('../services/appointmentMapper');
 const { Chamber } = require('../models/Chamber');
 const { DoctorSchedule, SCHEDULE_STATUSES } = require('../models/DoctorSchedule');
 const { SlotBooking } = require('../models/SlotBooking');
@@ -279,12 +282,10 @@ async function getDoctorAppointmentSlots(req, res, next) {
 
 async function bookAppointmentSlot(req, res, next) {
   try {
-    const { scheduleId, date, slotStart } = req.body;
-    if (!scheduleId || !date || !slotStart) {
-      return res.status(400).json({
-        success: false,
-        message: 'scheduleId, date, and slotStart are required',
-      });
+    const { scheduleId, date, slotStart, patientNote } = req.body;
+    const validationError = validateBookingRequest({ scheduleId, date, slotStart });
+    if (validationError) {
+      return res.status(400).json({ success: false, message: validationError });
     }
 
     const schedule = await DoctorSchedule.findById(scheduleId);
@@ -303,15 +304,28 @@ async function bookAppointmentSlot(req, res, next) {
       return res.status(400).json({ success: false, message: 'Invalid slot for this schedule and date' });
     }
 
+    const duplicate = await SlotBooking.findOne({
+      patient: req.user._id,
+      schedule: scheduleId,
+      date,
+      slotStart,
+      status: { $ne: 'cancelled' },
+    });
+    if (duplicate) {
+      return res.status(409).json({ success: false, message: 'You already booked this slot' });
+    }
+
     const existingCount = await SlotBooking.countDocuments({
       schedule: scheduleId,
       date,
       slotStart,
+      status: { $ne: 'cancelled' },
     });
     if (existingCount >= schedule.patientsPerSlot) {
       return res.status(409).json({ success: false, message: 'This slot is full' });
     }
 
+    const serialNumber = await nextSerialForDoctorDay(schedule.doctor, date);
     const booking = await SlotBooking.create({
       doctor: schedule.doctor,
       schedule: scheduleId,
@@ -320,17 +334,21 @@ async function bookAppointmentSlot(req, res, next) {
       slotStart: match.slotStart,
       slotEnd: match.slotEnd,
       patient: req.user._id,
+      serialNumber,
+      status: 'confirmed',
+      confirmationCode: buildConfirmationCode(),
+      patientNote: patientNote ? String(patientNote).trim().slice(0, 300) : '',
     });
+
+    const [doctor, chamber] = await Promise.all([
+      User.findById(schedule.doctor),
+      Chamber.findById(schedule.chamber),
+    ]);
+    const appointment = await toAppointmentJSON(booking, { doctor, chamber, schedule });
 
     return res.status(201).json({
       success: true,
-      booking: {
-        id: booking._id.toString(),
-        scheduleId,
-        date,
-        slotStart: match.slotStart,
-        slotEnd: match.slotEnd,
-      },
+      appointment,
     });
   } catch (err) {
     next(err);
