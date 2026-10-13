@@ -74,14 +74,13 @@ export default function DoctorSchedulePage() {
     setError('');
     setSuccess('');
     try {
-      await scheduleApi.bookSlot({
+      const result = await scheduleApi.bookSlot({
         scheduleId: slot.scheduleId,
         date: slot.date,
         slotStart: slot.slotStart,
       });
-      setSuccess(`Booked ${slot.slotStart}–${slot.slotEnd} successfully.`);
-      const res = await scheduleApi.getDoctorSlots(doctorId, date, date);
-      setSlots(res.slots);
+      router.push(`/bookings/${result.appointment.id}`);
+      return;
     } catch (err) {
       setError(err.message || 'Booking failed');
     } finally {

@@ -70,9 +70,14 @@ export default function DoctorCard({ doctor }) {
           ) : null}
           {!today.hasHours ? <span>See weekly schedule</span> : null}
         </div>
-        <Link href={`/doctors/${doctor.id}/schedule`} className="ss-btn-primary shrink-0 px-5 py-2.5 text-center text-sm">
-          Book Serial
-        </Link>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Link href={`/doctors/${doctor.id}`} className="ss-btn-secondary px-4 py-2.5 text-center text-sm">
+            Profile
+          </Link>
+          <Link href={`/doctors/${doctor.id}/schedule`} className="ss-btn-primary px-5 py-2.5 text-center text-sm">
+            Book Serial
+          </Link>
+        </div>
       </div>
     </article>
   );
