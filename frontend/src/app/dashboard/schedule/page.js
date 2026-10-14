@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
 import AppHeader from '@/components/AppHeader';
 import AppShell from '@/components/AppShell';
+import FieldLabel from '@/components/FieldLabel';
 import FormField from '@/components/FormField';
 import { authApi, scheduleApi } from '@/lib/api';
 import { validateCreateAvailability } from '@/lib/scheduleValidation';
@@ -18,7 +19,7 @@ const emptyForm = {
   endTime: '12:00',
   consultationFee: '',
   patientsPerSlot: 1,
-  slotDurationMinutes: 15,
+  slotDurationMinutes: '',
 };
 
 export default function DoctorSchedulePage() {
@@ -27,7 +28,7 @@ export default function DoctorSchedulePage() {
   const [chambers, setChambers] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [form, setForm] = useState(emptyForm);
-  const [chamberForm, setChamberForm] = useState({ name: '', address: '', city: '' });
+  const [chamberForm, setChamberForm] = useState({ name: '', address: '', city: '', area: '' });
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
@@ -45,6 +46,10 @@ export default function DoctorSchedulePage() {
       .me()
       .then((data) => {
         if (data.user.role !== 'doctor' && data.user.role !== 'admin') {
+          router.replace('/home');
+          return;
+        }
+        if (data.user.role === 'doctor' && data.user.doctorApprovalStatus !== 'approved') {
           router.replace('/dashboard');
           return;
         }
@@ -73,7 +78,7 @@ export default function DoctorSchedulePage() {
     setError('');
     try {
       await scheduleApi.createChamber(chamberForm);
-      setChamberForm({ name: '', address: '', city: '' });
+      setChamberForm({ name: '', address: '', city: '', area: '' });
       setMessage('Chamber added');
       await load();
     } catch (err) {
@@ -136,7 +141,16 @@ export default function DoctorSchedulePage() {
   }
 
   return (
-    <AppShell header={<AppHeader active="schedule" onLogout={handleLogout} />}>
+    <AppShell
+      header={
+        <AppHeader
+          active="schedule"
+          onLogout={handleLogout}
+          isAdmin={user.role === 'admin'}
+          showSchedule
+        />
+      }
+    >
         <p className="text-xs font-semibold uppercase tracking-wide text-ss-primary">Schedule portal</p>
         <h1 className="mt-1 text-2xl font-bold text-ss-text">Multi-location chambers</h1>
         <p className="mt-1 text-sm text-ss-muted">Weekly hours, fees, and slot capacity per hospital.</p>
@@ -146,8 +160,9 @@ export default function DoctorSchedulePage() {
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <section className="ss-card-pad">
           <h2 className="font-semibold text-ss-text">Add chamber</h2>
-          <form onSubmit={handleCreateChamber} className="mt-4 grid gap-4 sm:grid-cols-3">
+          <form onSubmit={handleCreateChamber} className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <FormField label="Name" value={chamberForm.name} onChange={(e) => setChamberForm({ ...chamberForm, name: e.target.value })} required />
+            <FormField label="Area (e.g. Dhanmondi)" value={chamberForm.area} onChange={(e) => setChamberForm({ ...chamberForm, area: e.target.value })} />
             <FormField label="Address" value={chamberForm.address} onChange={(e) => setChamberForm({ ...chamberForm, address: e.target.value })} />
             <FormField label="City" value={chamberForm.city} onChange={(e) => setChamberForm({ ...chamberForm, city: e.target.value })} />
             <button type="submit" className="ss-btn-primary sm:col-span-3 sm:w-fit">
@@ -159,10 +174,13 @@ export default function DoctorSchedulePage() {
         <section className="ss-card-pad">
           <h2 className="font-semibold text-ss-text">New availability</h2>
           <form onSubmit={handleCreateSchedule} className="mt-4 space-y-4">
-            <label className="ss-label">
-              Chamber
+            <div>
+              <FieldLabel as="label" htmlFor="schedule-chamber" required>
+                Chamber
+              </FieldLabel>
               <select
-                className="ss-input mt-1"
+                id="schedule-chamber"
+                className="ss-input mt-1.5"
                 value={form.chamberId}
                 onChange={(e) => setForm({ ...form, chamberId: e.target.value })}
                 required
@@ -174,9 +192,9 @@ export default function DoctorSchedulePage() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
             <div>
-              <span className="ss-label">Days</span>
+              <FieldLabel required>Days</FieldLabel>
               <div className="mt-2 flex flex-wrap gap-2">
                 {DAY_LABELS.map((label, i) => (
                   <button
@@ -195,11 +213,26 @@ export default function DoctorSchedulePage() {
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="Start" type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
-              <FormField label="End" type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} />
+              <FormField label="Start" type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} required />
+              <FormField label="End" type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} required />
+              <FormField
+                label="Minutes per patient (serial)"
+                type="number"
+                min="5"
+                max="120"
+                step="1"
+                value={form.slotDurationMinutes}
+                onChange={(e) => setForm({ ...form, slotDurationMinutes: e.target.value })}
+                required
+                placeholder="e.g. 8, 12, 20"
+              />
               <FormField label="Fee (BDT)" type="number" min="0" value={form.consultationFee} onChange={(e) => setForm({ ...form, consultationFee: e.target.value })} required />
-              <FormField label="Patients per slot" type="number" min="1" value={form.patientsPerSlot} onChange={(e) => setForm({ ...form, patientsPerSlot: e.target.value })} />
+              <FormField label="Patients per slot" type="number" min="1" max="50" value={form.patientsPerSlot} onChange={(e) => setForm({ ...form, patientsPerSlot: e.target.value })} required />
             </div>
+            <p className="text-xs text-ss-muted">
+              Slot length is up to you — not fixed at 15 or 30 minutes. We split your start–end window into blocks of this
+              size for serial booking.
+            </p>
             <button type="submit" className="ss-btn-primary">
               Update schedule
             </button>
@@ -215,8 +248,8 @@ export default function DoctorSchedulePage() {
                 <div>
                   <p className="font-medium text-ss-text">{s.chamber?.name || 'Chamber'}</p>
                   <p className="text-sm text-ss-muted">
-                    {s.daysOfWeek.map((d) => DAY_LABELS[d]).join(', ')} · {s.startTime}–{s.endTime} · ৳
-                    {s.consultationFee}
+                    {s.daysOfWeek.map((d) => DAY_LABELS[d]).join(', ')} · {s.startTime}–{s.endTime} ·{' '}
+                    {s.slotDurationMinutes} min/serial · ৳{s.consultationFee}
                   </p>
                   <span className={s.status === 'active' ? 'ss-badge-active mt-1' : 'ss-badge-inactive mt-1'}>
                     {s.status}

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
 import AppHeader from '@/components/AppHeader';
 import AppShell from '@/components/AppShell';
+import PatientShell from '@/components/patient/PatientShell';
 import FormField from '@/components/FormField';
 import { authApi, userApi } from '@/lib/api';
 
@@ -77,8 +78,9 @@ export default function ProfilePage() {
     );
   }
 
-  return (
-    <AppShell header={<AppHeader active="profile" onLogout={handleLogout} />} width="5xl">
+  const isPatient = user.role === 'patient';
+  const body = (
+    <>
         <h1 className="text-2xl font-bold text-ss-text">Account profile</h1>
         <p className="mt-1 text-sm text-ss-muted">Manage your personal details for SerialSync.</p>
 
@@ -133,6 +135,28 @@ export default function ProfilePage() {
             </div>
           </section>
         </div>
+    </>
+  );
+
+  if (isPatient) {
+    return <PatientShell user={user}>{body}</PatientShell>;
+  }
+
+  return (
+    <AppShell
+      header={
+        <AppHeader
+          active="profile"
+          onLogout={handleLogout}
+          isAdmin={user.role === 'admin'}
+          showSchedule={
+            (user.role === 'doctor' && user.doctorApprovalStatus === 'approved') || user.role === 'admin'
+          }
+        />
+      }
+      width="5xl"
+    >
+      {body}
     </AppShell>
   );
 }

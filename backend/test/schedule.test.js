@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
-const { connectTestDb, clearScheduleData, disconnectTestDb } = require('./helpers/testDb');
+const { connectTestDb, clearScheduleData, disconnectTestDb, approveDoctor } = require('./helpers/testDb');
 const { COOKIE_NAME } = require('../src/utils/jwt');
 
 let app;
@@ -34,7 +34,9 @@ async function registerDoctor() {
       password: 'password123',
       role: 'doctor',
     });
-  return { cookie: authCookie(res), user: res.body.user };
+  const user = res.body.user;
+  await approveDoctor(user.id);
+  return { cookie: authCookie(res), user };
 }
 
 async function registerPatient() {
@@ -73,6 +75,26 @@ test('SCRUM-26: doctor creates chamber and availability', async () => {
   assert.equal(scheduleRes.status, 201);
   assert.equal(scheduleRes.body.schedule.doctorId, user.id);
   assert.deepEqual(scheduleRes.body.schedule.daysOfWeek, [1, 3]);
+});
+
+test('SCRUM-26: schedule requires doctor-chosen slot duration', async () => {
+  const { cookie } = await registerDoctor();
+  const chamberRes = await request(app)
+    .post('/api/chambers')
+    .set('Cookie', cookie)
+    .send({ name: 'Duration Clinic' });
+  const chamberId = chamberRes.body.chamber.id;
+  const missing = await request(app)
+    .post('/api/schedules')
+    .set('Cookie', cookie)
+    .send({
+      chamberId,
+      daysOfWeek: [2],
+      startTime: '10:00',
+      endTime: '13:00',
+      consultationFee: 800,
+    });
+  assert.equal(missing.status, 400);
 });
 
 test('SCRUM-27: doctor updates schedule times', async () => {

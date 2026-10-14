@@ -108,4 +108,41 @@ body {
   .ss-badge-inactive {
     @apply inline-flex rounded-full bg-ss-surface-elevated px-2.5 py-0.5 text-xs font-semibold text-ss-muted;
   }
+
+  .ss-scroll-x {
+    @apply overflow-x-auto;
+    scrollbar-width: none;
+  }
+
+  .ss-scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ss-pill {
+    @apply rounded-full border border-ss-border bg-ss-surface px-4 py-2 text-sm font-medium text-ss-text transition hover:border-ss-muted;
+  }
+
+  .ss-pill-active {
+    @apply border-ss-primary bg-ss-primary text-slate-900 shadow-[0_0_16px_rgba(56,189,248,0.35)];
+  }
+
+  .ss-specialty-card {
+    @apply rounded-xl border border-ss-border bg-ss-surface p-4 hover:border-ss-primary/40;
+  }
+
+  .ss-specialty-icon {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl border border-ss-border bg-ss-surface-elevated;
+  }
+
+  .ss-doctor-card {
+    @apply rounded-xl border border-ss-border bg-ss-surface p-4 sm:p-5;
+  }
+
+  .ss-doctor-banner {
+    @apply flex items-center gap-2 rounded-xl border border-ss-border bg-ss-surface-elevated/80 px-3 py-2.5;
+  }
+
+  .ss-live-badge {
+    @apply inline-flex items-center gap-2 rounded-full border border-ss-border bg-ss-surface px-3 py-1 text-xs font-semibold text-ss-secondary;
+  }
 }
