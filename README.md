@@ -47,8 +47,8 @@ Backend `CLIENT_URL` should match the frontend origin (`http://localhost:3000`).
 
 ## Current milestone
 
-Sprint 2 — doctor chambers, weekly availability, conflict checks, and slot booking counts.  
-See [docs/MILESTONE_SCHEDULE.md](./docs/MILESTONE_SCHEDULE.md). Auth milestone: [docs/MILESTONE_AUTH.md](./docs/MILESTONE_AUTH.md).
+Sprint 3 — appointment booking (search, profile, book, confirm, history, cancel).  
+See [docs/MILESTONE_BOOKING.md](./docs/MILESTONE_BOOKING.md). Prior: [schedule](./docs/MILESTONE_SCHEDULE.md), [auth](./docs/MILESTONE_AUTH.md).
 
 | Layer | Docs |
 |-------|------|
