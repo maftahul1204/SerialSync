@@ -12,5 +12,12 @@ export function validateCreateAvailability(form) {
   if (form.consultationFee === '' || form.consultationFee === null) return 'Fee is required';
   const fee = Number(form.consultationFee);
   if (Number.isNaN(fee) || fee < 0) return 'Fee must be zero or more';
+  if (form.slotDurationMinutes === '' || form.slotDurationMinutes === null || form.slotDurationMinutes === undefined) {
+    return 'Set minutes per patient for each serial';
+  }
+  const duration = Number(form.slotDurationMinutes);
+  if (Number.isNaN(duration) || duration < 5 || duration > 120) {
+    return 'Minutes per patient must be between 5 and 120';
+  }
   return null;
 }

@@ -31,13 +31,29 @@ async function register(req, res, next) {
     }
 
     const passwordHash = await User.hashPassword(password);
-    const user = await User.create({
+    const createPayload = {
       fullName,
       email,
       phone,
       passwordHash,
       role: assignedRole,
-    });
+    };
+    if (assignedRole === 'doctor') {
+      createPayload.doctorApprovalStatus = 'pending';
+    }
+    if (assignedRole === 'doctor' && req.body.doctorProfile && typeof req.body.doctorProfile === 'object') {
+      const dp = req.body.doctorProfile;
+      createPayload.doctorProfile = {
+        specialtyTitle: dp.specialtyTitle,
+        specialtySlug: dp.specialtySlug,
+        affiliations: dp.affiliations,
+        roomLabel: dp.roomLabel,
+        rating: dp.rating,
+        avatarUrl: dp.avatarUrl,
+        isOnline: dp.isOnline,
+      };
+    }
+    const user = await User.create(createPayload);
 
     const token = signAccessToken(user);
     res.cookie(COOKIE_NAME, token, cookieOptions());

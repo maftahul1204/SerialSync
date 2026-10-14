@@ -45,6 +45,7 @@ function eachDateInRange(fromYmd, toYmd) {
 function applyBookingCounts(slots, bookings) {
   const counts = new Map();
   for (const b of bookings) {
+    if (b.status === 'cancelled') continue;
     const key = `${b.schedule.toString()}|${b.date}|${b.slotStart}`;
     counts.set(key, (counts.get(key) || 0) + 1);
   }

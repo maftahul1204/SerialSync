@@ -6,6 +6,9 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const chamberRoutes = require('./routes/chamber.routes');
 const scheduleRoutes = require('./routes/schedule.routes');
+const doctorRoutes = require('./routes/doctor.routes');
+const adminRoutes = require('./routes/admin.routes');
+const appointmentRoutes = require('./routes/appointment.routes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -27,6 +30,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chambers', chamberRoutes);
 app.use('/api/schedules', scheduleRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 app.use(errorHandler);
 

@@ -7,6 +7,7 @@ import Alert from '@/components/Alert';
 import AuthLayout from '@/components/auth/AuthLayout';
 import IconField, { LockIcon, MailIcon } from '@/components/auth/IconField';
 import { authApi } from '@/lib/api';
+import { homePathForRole } from '@/lib/authRedirect';
 import { validateLogin } from '@/lib/validation';
 
 export default function LoginPage() {
@@ -24,7 +25,11 @@ export default function LoginPage() {
       setEmail(saved);
       setRemember(true);
     }
-  }, []);
+    authApi
+      .me()
+      .then((data) => router.replace(homePathForRole(data.user?.role)))
+      .catch(() => {});
+  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -36,13 +41,13 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await authApi.login({ email, password });
+      const data = await authApi.login({ email, password });
       if (remember) {
         localStorage.setItem('serialsync_remember_email', email);
       } else {
         localStorage.removeItem('serialsync_remember_email');
       }
-      router.push('/dashboard');
+      router.push(homePathForRole(data.user?.role));
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {

@@ -41,6 +41,27 @@ function validateNewAvailability(body) {
     return { ok: false, status: 400, message: 'consultationFee must be a non-negative number' };
   }
 
+  if (slotDurationMinutes === undefined || slotDurationMinutes === null || slotDurationMinutes === '') {
+    return {
+      ok: false,
+      status: 400,
+      message: 'slotDurationMinutes is required (minutes per patient serial)',
+    };
+  }
+  const duration = Number(slotDurationMinutes);
+  if (Number.isNaN(duration) || duration < 5 || duration > 120) {
+    return {
+      ok: false,
+      status: 400,
+      message: 'slotDurationMinutes must be between 5 and 120',
+    };
+  }
+
+  const capacity = patientsPerSlot === undefined || patientsPerSlot === null ? 1 : Number(patientsPerSlot);
+  if (Number.isNaN(capacity) || capacity < 1 || capacity > 50) {
+    return { ok: false, status: 400, message: 'patientsPerSlot must be between 1 and 50' };
+  }
+
   return {
     ok: true,
     data: {
@@ -48,9 +69,9 @@ function validateNewAvailability(body) {
       daysOfWeek,
       startTime,
       endTime,
-      slotDurationMinutes,
+      slotDurationMinutes: duration,
       consultationFee: fee,
-      patientsPerSlot,
+      patientsPerSlot: capacity,
       notes,
     },
   };
