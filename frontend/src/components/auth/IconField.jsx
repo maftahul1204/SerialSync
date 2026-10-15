@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import FieldLabel from '@/components/FieldLabel';
 
 export default function IconField({
   label,
@@ -19,7 +20,7 @@ export default function IconField({
 
   return (
     <label htmlFor={id} className="block">
-      <span className="ss-label">{label}</span>
+      <FieldLabel required={required}>{label}</FieldLabel>
       <div className="relative mt-1.5">
         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ss-muted">{icon}</span>
         <input

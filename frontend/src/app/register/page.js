@@ -114,7 +114,7 @@ export default function RegisterPage() {
         {role === 'doctor' ? (
           <>
             <label className="ss-label" htmlFor="specialtySlug">
-              Specialty
+              Specialty <span className="text-ss-tertiary" aria-hidden="true">*</span>
             </label>
             <select
               id="specialtySlug"
