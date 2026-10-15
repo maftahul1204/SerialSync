@@ -1,3 +1,5 @@
+import FieldLabel from '@/components/FieldLabel';
+
 export default function FormField({
   label,
   id,
@@ -8,10 +10,12 @@ export default function FormField({
   autoComplete,
   placeholder,
   min,
+  max,
+  step,
 }) {
   return (
-    <label htmlFor={id} className="ss-label">
-      {label}
+    <label htmlFor={id} className="block">
+      <FieldLabel required={required}>{label}</FieldLabel>
       <input
         id={id}
         name={id}
@@ -22,6 +26,8 @@ export default function FormField({
         autoComplete={autoComplete}
         placeholder={placeholder}
         min={min}
+        max={max}
+        step={step}
         className="ss-input mt-1.5"
       />
     </label>
