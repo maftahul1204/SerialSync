@@ -22,9 +22,12 @@ export default function BrandMark({ href = '/', centered = false, compact = fals
         <PulseIcon />
       </span>
       {!compact ? (
-        <span className="text-xl font-semibold tracking-tight">
-          <span className="text-ss-text">Serial</span>
-          <span className="text-ss-primary">Sync</span>
+        <span className="leading-tight">
+          <span className="block text-xl font-semibold tracking-tight">
+            <span className="text-ss-text">Serial</span>
+            <span className="text-ss-primary">Sync</span>
+          </span>
+          <span className="block text-[11px] font-medium text-ss-primary/90">Clinical Care Hub</span>
         </span>
       ) : null}
     </Link>
