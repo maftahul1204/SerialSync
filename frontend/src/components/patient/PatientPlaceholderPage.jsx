@@ -7,6 +7,7 @@ import PatientShell from '@/components/patient/PatientShell';
 import { authApi } from '@/lib/api';
 import { homePathForRole } from '@/lib/authRedirect';
 
+import { PageSkeleton } from '@/components/Loading';
 export default function PatientPlaceholderPage({ title, description }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -26,9 +27,7 @@ export default function PatientPlaceholderPage({ title, description }) {
 
   if (!user) {
     return (
-      <div className="ss-page flex min-h-screen items-center justify-center text-ss-muted">
-        Loading…
-      </div>
+      <PageSkeleton />
     );
   }
 
