@@ -25,10 +25,29 @@ async function clearScheduleData() {
   const { Chamber } = require('../../src/models/Chamber');
   const { DoctorSchedule } = require('../../src/models/DoctorSchedule');
   const { SlotBooking } = require('../../src/models/SlotBooking');
+  const { QueueSession } = require('../../src/models/QueueSession');
+  const { WalkInEntry } = require('../../src/models/WalkInEntry');
+  const { DiagnosticOrder } = require('../../src/models/DiagnosticOrder');
+  const { DiagnosticTest } = require('../../src/models/DiagnosticTest');
+  await WalkInEntry.deleteMany({});
+  await QueueSession.deleteMany({});
+  await DiagnosticOrder.deleteMany({});
+  await DiagnosticTest.deleteMany({});
   await SlotBooking.deleteMany({});
   await DoctorSchedule.deleteMany({});
   await Chamber.deleteMany({});
   await User.deleteMany({});
+}
+
+async function seedDiagnosticTests() {
+  const { DiagnosticTest } = require('../../src/models/DiagnosticTest');
+  const count = await DiagnosticTest.countDocuments();
+  if (count > 0) return;
+  await DiagnosticTest.insertMany([
+    { code: 'CBC', name: 'Complete Blood Count', category: 'Hematology', price: 450 },
+    { code: 'FBS', name: 'Fasting Blood Sugar', category: 'Biochemistry', price: 200 },
+    { code: 'LIPID', name: 'Lipid Profile', category: 'Biochemistry', price: 900 },
+  ]);
 }
 
 async function disconnectTestDb() {
@@ -46,4 +65,11 @@ async function approveDoctor(userId) {
   await User.findByIdAndUpdate(userId, { doctorApprovalStatus: 'approved' });
 }
 
-module.exports = { connectTestDb, clearUsers, clearScheduleData, disconnectTestDb, approveDoctor };
+module.exports = {
+  connectTestDb,
+  clearUsers,
+  clearScheduleData,
+  disconnectTestDb,
+  approveDoctor,
+  seedDiagnosticTests,
+};

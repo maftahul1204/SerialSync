@@ -1,6 +1,7 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
+const { registerDoctor } = require('./helpers/doctorDocs');
 const app = require('../src/app');
 const { connectTestDb, disconnectTestDb, clearUsers, approveDoctor } = require('./helpers/testDb');
 
@@ -19,16 +20,12 @@ test('GET /api/doctors requires authentication', async () => {
 });
 
 test('GET /api/doctors returns directory payload', async () => {
-  const reg = await request(app).post('/api/auth/register').send({
+  const reg = await registerDoctor(app, {
     fullName: 'Dr. Test',
     email: 'dir-doctor@test.com',
-    password: 'password123',
-    role: 'doctor',
-    doctorProfile: {
-      specialtyTitle: 'Cardiologist',
-      specialtySlug: 'cardiology',
-      affiliations: 'Square Hospital',
-    },
+    specialtyTitle: 'Cardiologist',
+    specialtySlug: 'cardiology',
+    affiliations: 'Square Hospital',
   });
   await approveDoctor(reg.body.user.id);
 
