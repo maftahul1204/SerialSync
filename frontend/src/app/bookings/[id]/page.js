@@ -7,11 +7,13 @@ import Alert from '@/components/Alert';
 import PatientShell from '@/components/patient/PatientShell';
 import { appointmentsApi, authApi } from '@/lib/api';
 
+import { ListSkeleton, PageSkeleton } from '@/components/Loading';
 export default function BookingConfirmationPage() {
   const params = useParams();
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [appointment, setAppointment] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -33,13 +35,15 @@ export default function BookingConfirmationPage() {
       .get(params.id)
       .then((data) => setAppointment(data.appointment))
       .catch((err) => setError(err.message));
+    appointmentsApi
+      .getQr(params.id)
+      .then((data) => setQrDataUrl(data.qrDataUrl))
+      .catch(() => {});
   }, [params.id, user]);
 
   if (!user) {
     return (
-      <div className="ss-page flex min-h-screen items-center justify-center text-ss-muted">
-        Loading…
-      </div>
+      <PageSkeleton />
     );
   }
 
@@ -47,7 +51,7 @@ export default function BookingConfirmationPage() {
     <PatientShell user={user}>
       <Alert message={error} />
       {!appointment ? (
-        <p className="text-ss-muted">Loading confirmation…</p>
+        <ListSkeleton rows={1} lines={4} label="Loading confirmation" />
       ) : (
         <div className="mx-auto max-w-lg">
           <div className="ss-card-pad text-center">
@@ -62,7 +66,11 @@ export default function BookingConfirmationPage() {
               </p>
               <p className="mt-2 font-mono text-xs text-ss-muted">Code: {appointment.confirmationCode}</p>
             </div>
-            <p className="mt-4 text-xs text-ss-muted">Show this serial at the chamber desk. QR check-in comes in a later sprint.</p>
+            {qrDataUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={qrDataUrl} alt="Appointment QR pass" className="mx-auto mt-4 h-[200px] w-[200px] rounded-lg bg-white p-2" />
+            ) : null}
+            <p className="mt-4 text-xs text-ss-muted">Show this serial or QR at the chamber desk.</p>
           </div>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link href="/bookings" className="ss-btn-primary text-center">

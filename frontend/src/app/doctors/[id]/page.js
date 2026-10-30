@@ -10,6 +10,7 @@ import { StarIcon } from '@/components/patient/icons';
 import { authApi, doctorsApi } from '@/lib/api';
 import { homePathForRole } from '@/lib/authRedirect';
 
+import { ListSkeleton, PageSkeleton } from '@/components/Loading';
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function DoctorProfilePage() {
@@ -43,9 +44,7 @@ export default function DoctorProfilePage() {
 
   if (!user) {
     return (
-      <div className="ss-page flex min-h-screen items-center justify-center text-ss-muted">
-        Loading…
-      </div>
+      <PageSkeleton />
     );
   }
 
@@ -58,7 +57,7 @@ export default function DoctorProfilePage() {
       </Link>
       <Alert message={error} />
       {!doctor ? (
-        <p className="text-ss-muted">Loading profile…</p>
+        <ListSkeleton rows={2} lines={3} label="Loading profile" />
       ) : (
         <div className="grid gap-8 lg:grid-cols-3">
           <section className="ss-card-pad lg:col-span-1">

@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
+import FieldLabel from '@/components/FieldLabel';
 import PatientShell from '@/components/patient/PatientShell';
-import { authApi, scheduleApi } from '@/lib/api';
+import { authApi, familyApi, scheduleApi } from '@/lib/api';
 import { homePathForRole } from '@/lib/authRedirect';
 
+import { ListSkeleton, PageSkeleton } from '@/components/Loading';
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function DoctorSchedulePage() {
@@ -21,6 +23,8 @@ export default function DoctorSchedulePage() {
   const [success, setSuccess] = useState('');
   const [date, setDate] = useState('');
   const [bookingId, setBookingId] = useState('');
+  const [family, setFamily] = useState([]);
+  const [familyMemberId, setFamilyMemberId] = useState('');
 
   useEffect(() => {
     authApi
@@ -38,6 +42,14 @@ export default function DoctorSchedulePage() {
       })
       .catch(() => router.replace('/login'));
   }, [router]);
+
+  useEffect(() => {
+    if (user?.role !== 'patient') return;
+    familyApi
+      .list()
+      .then((res) => setFamily(res.members))
+      .catch(() => {});
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +90,7 @@ export default function DoctorSchedulePage() {
         scheduleId: slot.scheduleId,
         date: slot.date,
         slotStart: slot.slotStart,
+        ...(familyMemberId ? { familyMemberId } : {}),
       });
       router.push(`/bookings/${result.appointment.id}`);
       return;
@@ -90,9 +103,7 @@ export default function DoctorSchedulePage() {
 
   if (!user) {
     return (
-      <div className="ss-page flex min-h-screen items-center justify-center text-ss-muted">
-        Loading schedule…
-      </div>
+      <PageSkeleton />
     );
   }
 
@@ -104,7 +115,7 @@ export default function DoctorSchedulePage() {
       <Alert message={error} />
       <Alert type="success" message={success} />
       {!data ? (
-        <p className="text-ss-muted">Loading schedule…</p>
+        <ListSkeleton rows={2} lines={3} label="Loading schedule" />
       ) : (
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
@@ -148,12 +159,26 @@ export default function DoctorSchedulePage() {
 
           <section className="ss-card-pad lg:sticky lg:top-24 lg:self-start">
             <h2 className="font-semibold text-ss-text">Book a serial</h2>
-            <label className="ss-label mt-4" htmlFor="slot-date">
+            {family.length ? (
+              <label className="mt-3 block text-sm text-ss-muted">
+                Booking for
+                <select className="ss-input mt-1 max-w-xs" value={familyMemberId} onChange={(e) => setFamilyMemberId(e.target.value)}>
+                  <option value="">Myself</option>
+                  {family.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.fullName} ({m.relation})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <FieldLabel as="label" htmlFor="slot-date" className="ss-label mt-4 block" required>
               Date
-            </label>
+            </FieldLabel>
             <input
               id="slot-date"
               type="date"
+              required
               className="ss-input mt-2 max-w-xs"
               value={date}
               onChange={(e) => setDate(e.target.value)}
