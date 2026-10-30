@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
+const { registerDoctor: registerDoctorWithDocs } = require('./helpers/doctorDocs');
 const { connectTestDb, clearScheduleData, disconnectTestDb, approveDoctor } = require('./helpers/testDb');
 const { COOKIE_NAME } = require('../src/utils/jwt');
 
@@ -26,14 +27,7 @@ function authCookie(res) {
 }
 
 async function registerDoctor() {
-  const res = await request(app)
-    .post('/api/auth/register')
-    .send({
-      fullName: 'Dr Test',
-      email: 'doctor@serialsync.test',
-      password: 'password123',
-      role: 'doctor',
-    });
+  const res = await registerDoctorWithDocs(app, { fullName: 'Dr Test', email: 'doctor@serialsync.test' });
   const user = res.body.user;
   await approveDoctor(user.id);
   return { cookie: authCookie(res), user };
@@ -112,6 +106,7 @@ test('SCRUM-27: doctor updates schedule times', async () => {
       startTime: '10:00',
       endTime: '11:00',
       consultationFee: 300,
+      slotDurationMinutes: 30,
     });
   const updated = await request(app)
     .patch(`/api/schedules/${created.body.schedule.id}`)
@@ -136,6 +131,7 @@ test('SCRUM-28: doctor deletes availability', async () => {
       startTime: '14:00',
       endTime: '15:00',
       consultationFee: 400,
+      slotDurationMinutes: 30,
     });
   const del = await request(app)
     .delete(`/api/schedules/${created.body.schedule.id}`)
@@ -160,6 +156,7 @@ test('SCRUM-29: patient views doctor schedule', async () => {
       startTime: '09:00',
       endTime: '10:00',
       consultationFee: 250,
+      slotDurationMinutes: 30,
     });
 
   const view = await request(app).get(`/api/schedules/doctors/${user.id}`);
@@ -184,6 +181,7 @@ test('SCRUM-31: overlapping schedules are rejected', async () => {
       startTime: '09:00',
       endTime: '11:00',
       consultationFee: 500,
+      slotDurationMinutes: 30,
     });
   const conflict = await request(app)
     .post('/api/schedules')
@@ -194,6 +192,7 @@ test('SCRUM-31: overlapping schedules are rejected', async () => {
       startTime: '10:00',
       endTime: '12:00',
       consultationFee: 500,
+      slotDurationMinutes: 30,
     });
   assert.equal(conflict.status, 409);
   assert.ok(conflict.body.conflicts?.length);
@@ -214,6 +213,7 @@ test('SCRUM-32: inactive schedule hidden from public view', async () => {
       startTime: '08:00',
       endTime: '09:00',
       consultationFee: 200,
+      slotDurationMinutes: 30,
     });
   await request(app)
     .patch(`/api/schedules/${created.body.schedule.id}/status`)
