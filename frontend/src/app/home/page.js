@@ -5,13 +5,16 @@ import { useCallback, useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
 import DoctorCard from '@/components/patient/DoctorCard';
 import LocationPills from '@/components/patient/LocationPills';
+import HomeHero from '@/components/patient/HomeHero';
 import PatientShell from '@/components/patient/PatientShell';
+import { queueApi } from '@/lib/api';
 import SearchBar from '@/components/patient/SearchBar';
 import SpecialtyGrid from '@/components/patient/SpecialtyGrid';
 import { authApi, doctorsApi } from '@/lib/api';
 import { homePathForRole } from '@/lib/authRedirect';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
+import { ListSkeleton, PageSkeleton } from '@/components/Loading';
 const DEFAULT_SPECIALTIES = [
   { slug: 'cardiology', title: 'Cardiology', subtitle: 'Heart Care', icon: 'heart' },
   { slug: 'medicine', title: 'Medicine', subtitle: 'Medicine', icon: 'stethoscope' },
@@ -29,6 +32,7 @@ export default function PatientHomePage() {
   const [doctors, setDoctors] = useState([]);
   const [meta, setMeta] = useState({ specialties: DEFAULT_SPECIALTIES, areas: [] });
   const [loading, setLoading] = useState(true);
+  const [queuePreview, setQueuePreview] = useState(null);
 
   const debouncedSearch = useDebouncedValue(search);
 
@@ -68,33 +72,41 @@ export default function PatientHomePage() {
     loadDoctors();
   }, [loadDoctors]);
 
+  useEffect(() => {
+    if (!user) return;
+    queueApi
+      .myToday()
+      .then((data) => {
+        if (data.queue) {
+          setQueuePreview({
+            serialNumber: data.serialNumber,
+            patientsAhead: data.patientsAhead,
+            estimatedWaitMinutes: data.estimatedWaitMinutes,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [user]);
+
   function scrollToFilters() {
     document.getElementById('home-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   if (!user) {
     return (
-      <div className="ss-page flex min-h-screen items-center justify-center text-ss-muted">
-        Loading…
-      </div>
+      <PageSkeleton />
     );
   }
 
-  const firstName = user.fullName.split(/\s+/)[0];
   const liveCount = doctors.filter((d) => d.today?.isLive).length;
 
   return (
     <PatientShell user={user}>
       <Alert message={error} />
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-ss-text sm:text-3xl">
-          Hello, {firstName} <span aria-hidden>👋</span>
-        </h1>
-        <p className="text-sm text-ss-muted sm:text-base">Find a specialist doctor in Dhaka</p>
-      </header>
+      <HomeHero user={user} queuePreview={queuePreview} />
 
-      <div className="mt-6 space-y-4" id="home-filters">
+      <div className="mt-8 space-y-4" id="home-filters">
         <SearchBar value={search} onChange={setSearch} onOpenFilters={scrollToFilters} />
         <LocationPills areas={meta.areas} value={area} onChange={setArea} />
       </div>
@@ -121,7 +133,7 @@ export default function PatientHomePage() {
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:gap-6">
-          {loading ? <p className="text-sm text-ss-muted lg:col-span-2">Loading specialists…</p> : null}
+          {loading ? <div className="lg:col-span-2"><ListSkeleton rows={3} label="Loading specialists" /></div> : null}
           {!loading && !doctors.length ? (
             <div className="ss-card p-6 text-sm text-ss-muted lg:col-span-2">
               No doctors match your search. Try another area or specialty.

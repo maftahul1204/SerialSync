@@ -9,6 +9,7 @@ import IconField, { LockIcon } from '@/components/auth/IconField';
 import FormField from '@/components/FormField';
 import { authApi } from '@/lib/api';
 
+import { PageSkeleton } from '@/components/Loading';
 function ResetForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -70,7 +71,7 @@ function ResetForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="ss-auth-bg ss-page p-8 text-center text-ss-muted">Loading…</div>}>
+    <Suspense fallback={<PageSkeleton />}>
       <ResetForm />
     </Suspense>
   );
