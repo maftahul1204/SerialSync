@@ -2,6 +2,14 @@ const { User, ROLES } = require('../models/User');
 const { COOKIE_NAME, signAccessToken, cookieOptions } = require('../utils/jwt');
 const { generateResetToken, hashResetToken } = require('../utils/resetToken');
 const env = require('../config/env');
+const { uploadedEntries } = require('../middleware/doctorUpload');
+const {
+  validateDocumentFile,
+  missingRequiredTypes,
+  labelFor,
+  saveDocuments,
+  removeUserDocuments,
+} = require('../utils/doctorDocuments');
 
 const PASSWORD_MIN = 8;
 
@@ -30,6 +38,30 @@ async function register(req, res, next) {
       }
     }
 
+    // Doctors must supply BMDC details and verification documents at signup.
+    const entries = assignedRole === 'doctor' ? uploadedEntries(req) : [];
+    const dpIn =
+      req.body.doctorProfile && typeof req.body.doctorProfile === 'object' ? req.body.doctorProfile : {};
+    const pick = (key) => dpIn[key] ?? req.body[key];
+    if (assignedRole === 'doctor') {
+      const bmdcNumber = String(pick('bmdcNumber') || '').trim();
+      if (!/^[A-Za-z0-9-]{4,30}$/.test(bmdcNumber)) {
+        return res.status(400).json({ success: false, message: 'A valid BMDC registration number is required' });
+      }
+      for (const [, file] of entries) {
+        const fileError = validateDocumentFile(file);
+        if (fileError) return res.status(400).json({ success: false, message: fileError });
+      }
+      const missing = missingRequiredTypes(entries.map(([type]) => type));
+      if (missing.length) {
+        return res.status(400).json({
+          success: false,
+          message: `Required documents missing: ${missing.map(labelFor).join(', ')}`,
+          missingDocuments: missing,
+        });
+      }
+    }
+
     const passwordHash = await User.hashPassword(password);
     const createPayload = {
       fullName,
@@ -41,19 +73,30 @@ async function register(req, res, next) {
     if (assignedRole === 'doctor') {
       createPayload.doctorApprovalStatus = 'pending';
     }
-    if (assignedRole === 'doctor' && req.body.doctorProfile && typeof req.body.doctorProfile === 'object') {
-      const dp = req.body.doctorProfile;
+    if (assignedRole === 'doctor') {
+      const years = pick('experienceYears');
       createPayload.doctorProfile = {
-        specialtyTitle: dp.specialtyTitle,
-        specialtySlug: dp.specialtySlug,
-        affiliations: dp.affiliations,
-        roomLabel: dp.roomLabel,
-        rating: dp.rating,
-        avatarUrl: dp.avatarUrl,
-        isOnline: dp.isOnline,
+        specialtyTitle: pick('specialtyTitle'),
+        specialtySlug: pick('specialtySlug'),
+        affiliations: pick('affiliations'),
+        roomLabel: pick('roomLabel'),
+        bmdcNumber: String(pick('bmdcNumber')).trim().toUpperCase(),
+        degrees: pick('degrees'),
+        experienceYears: years === undefined || years === '' ? undefined : Number(years),
       };
     }
     const user = await User.create(createPayload);
+
+    if (assignedRole === 'doctor') {
+      try {
+        user.doctorDocuments = saveDocuments(user._id, entries);
+        await user.save();
+      } catch (err) {
+        removeUserDocuments(user._id);
+        await User.deleteOne({ _id: user._id });
+        throw err;
+      }
+    }
 
     const token = signAccessToken(user);
     res.cookie(COOKIE_NAME, token, cookieOptions());

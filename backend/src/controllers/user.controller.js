@@ -4,7 +4,7 @@ async function getProfile(req, res) {
 
 async function updateProfile(req, res, next) {
   try {
-    const { fullName, phone, doctorProfile } = req.body;
+    const { fullName, phone, doctorProfile, patientProfile } = req.body;
     if (fullName !== undefined) {
       if (!fullName.trim()) {
         return res.status(400).json({ success: false, message: 'Full name cannot be empty' });
@@ -13,6 +13,18 @@ async function updateProfile(req, res, next) {
     }
     if (phone !== undefined) {
       req.user.phone = String(phone).trim();
+    }
+    if (patientProfile && req.user.role === 'patient') {
+      req.user.patientProfile = req.user.patientProfile || {};
+      if (patientProfile.city !== undefined) {
+        req.user.patientProfile.city = String(patientProfile.city).trim() || 'Dhaka';
+      }
+      if (patientProfile.bloodType !== undefined) {
+        req.user.patientProfile.bloodType = String(patientProfile.bloodType).trim();
+      }
+      if (patientProfile.smartPassVerified !== undefined) {
+        req.user.patientProfile.smartPassVerified = Boolean(patientProfile.smartPassVerified);
+      }
     }
     if (doctorProfile && req.user.role === 'doctor') {
       req.user.doctorProfile = req.user.doctorProfile || {};
