@@ -45,6 +45,11 @@ const userSchema = new mongoose.Schema(
       enum: DOCTOR_APPROVAL_STATUSES,
       default: undefined,
     },
+    patientProfile: {
+      city: { type: String, trim: true, maxlength: 80, default: 'Dhaka' },
+      bloodType: { type: String, trim: true, maxlength: 16, default: '' },
+      smartPassVerified: { type: Boolean, default: true },
+    },
     doctorProfile: {
       specialtyTitle: { type: String, trim: true, maxlength: 80 },
       specialtySlug: { type: String, trim: true, maxlength: 40 },
@@ -53,7 +58,21 @@ const userSchema = new mongoose.Schema(
       rating: { type: Number, min: 0, max: 5, default: 4.8 },
       avatarUrl: { type: String, trim: true, maxlength: 500 },
       isOnline: { type: Boolean, default: true },
+      bmdcNumber: { type: String, trim: true, maxlength: 30 },
+      degrees: { type: String, trim: true, maxlength: 200 },
+      experienceYears: { type: Number, min: 0, max: 70 },
     },
+    doctorApprovalNote: { type: String, trim: true, maxlength: 500, default: '' },
+    doctorDocuments: [
+      {
+        type: { type: String, required: true },
+        originalName: { type: String, trim: true, maxlength: 200 },
+        fileName: { type: String, required: true },
+        mimeType: { type: String },
+        size: { type: Number },
+        uploadedAt: { type: Date, default: Date.now },
+      },
+    ],
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
   },
@@ -78,6 +97,13 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
+  if (this.role === 'patient' && this.patientProfile) {
+    base.patientProfile = {
+      city: this.patientProfile.city || 'Dhaka',
+      bloodType: this.patientProfile.bloodType || '',
+      smartPassVerified: this.patientProfile.smartPassVerified !== false,
+    };
+  }
   if (this.role === 'doctor') {
     base.doctorApprovalStatus = this.doctorApprovalStatus || 'pending';
   }
@@ -90,7 +116,21 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
       rating: this.doctorProfile.rating ?? 4.8,
       avatarUrl: this.doctorProfile.avatarUrl || '',
       isOnline: this.doctorProfile.isOnline !== false,
+      bmdcNumber: this.doctorProfile.bmdcNumber || '',
+      degrees: this.doctorProfile.degrees || '',
+      experienceYears: this.doctorProfile.experienceYears ?? null,
     };
+  }
+  if (this.role === 'doctor') {
+    base.doctorApprovalNote = this.doctorApprovalNote || '';
+    base.documents = (this.doctorDocuments || []).map((d) => ({
+      id: d._id.toString(),
+      type: d.type,
+      originalName: d.originalName,
+      mimeType: d.mimeType,
+      size: d.size,
+      uploadedAt: d.uploadedAt,
+    }));
   }
   return base;
 };
