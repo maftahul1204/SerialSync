@@ -10,6 +10,7 @@ import PatientShell from '@/components/patient/PatientShell';
 import FormField from '@/components/FormField';
 import { authApi, userApi } from '@/lib/api';
 
+import { PageSkeleton } from '@/components/Loading';
 function roleLabel(role) {
   const labels = {
     patient: 'Patient',
@@ -33,7 +34,7 @@ function formatDate(iso) {
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
-  const [form, setForm] = useState({ fullName: '', phone: '' });
+  const [form, setForm] = useState({ fullName: '', phone: '', city: 'Dhaka', bloodType: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,12 @@ export default function ProfilePage() {
       .getProfile()
       .then((data) => {
         setUser(data.user);
-        setForm({ fullName: data.user.fullName || '', phone: data.user.phone || '' });
+        setForm({
+          fullName: data.user.fullName || '',
+          phone: data.user.phone || '',
+          city: data.user.patientProfile?.city || 'Dhaka',
+          bloodType: data.user.patientProfile?.bloodType || '',
+        });
       })
       .catch(() => router.replace('/login'));
   }, [router]);
@@ -59,9 +65,22 @@ export default function ProfilePage() {
     setSuccess('');
     setLoading(true);
     try {
-      const data = await userApi.updateProfile(form);
+      const payload =
+        user.role === 'patient'
+          ? {
+              fullName: form.fullName,
+              phone: form.phone,
+              patientProfile: { city: form.city, bloodType: form.bloodType },
+            }
+          : form;
+      const data = await userApi.updateProfile(payload);
       setUser(data.user);
-      setForm({ fullName: data.user.fullName, phone: data.user.phone || '' });
+      setForm({
+        fullName: data.user.fullName,
+        phone: data.user.phone || '',
+        city: data.user.patientProfile?.city || 'Dhaka',
+        bloodType: data.user.patientProfile?.bloodType || '',
+      });
       setSuccess('Profile updated successfully.');
     } catch (err) {
       setError(err.message || 'Update failed');
@@ -72,17 +91,21 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="ss-page flex items-center justify-center text-ss-muted">
-        Loading profile…
-      </div>
+      <PageSkeleton />
     );
   }
 
   const isPatient = user.role === 'patient';
   const body = (
     <>
-        <h1 className="text-2xl font-bold text-ss-text">Account profile</h1>
-        <p className="mt-1 text-sm text-ss-muted">Manage your personal details for SerialSync.</p>
+        <h1 className="text-2xl font-bold text-ss-text">
+          {isPatient ? 'Family care & profile' : 'Account profile'}
+        </h1>
+        <p className="mt-1 text-sm text-ss-muted">
+          {isPatient
+            ? 'Manage your SerialSync identity, location, and health pass details (Figma Family Care).'
+            : 'Manage your personal details for SerialSync.'}
+        </p>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-5">
           <section className="ss-card-pad lg:col-span-2">
@@ -121,6 +144,24 @@ export default function ProfilePage() {
                 onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                 placeholder="01XXXXXXXXX"
               />
+              {isPatient ? (
+                <>
+                  <FormField
+                    label="City"
+                    id="city"
+                    value={form.city}
+                    onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+                    placeholder="Dhaka"
+                  />
+                  <FormField
+                    label="Blood group"
+                    id="bloodType"
+                    value={form.bloodType}
+                    onChange={(e) => setForm((p) => ({ ...p, bloodType: e.target.value }))}
+                    placeholder="O+ Positive"
+                  />
+                </>
+              ) : null}
               <button type="submit" disabled={loading} className="ss-btn-primary w-full">
                 {loading ? 'Saving…' : 'Save changes'}
               </button>

@@ -10,6 +10,10 @@ import FormField from '@/components/FormField';
 import { authApi, scheduleApi } from '@/lib/api';
 import { validateCreateAvailability } from '@/lib/scheduleValidation';
 
+import { PageSkeleton } from '@/components/Loading';
+import CancelDayDialog from '@/components/doctor/CancelDayDialog';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { ListSkeleton } from '@/components/Loading';
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const emptyForm = {
@@ -27,6 +31,9 @@ export default function DoctorSchedulePage() {
   const [user, setUser] = useState(null);
   const [chambers, setChambers] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const [confirm, setConfirm] = useState(null); // { kind, schedule }
+  const [cancelDayFor, setCancelDayFor] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [chamberForm, setChamberForm] = useState({ name: '', address: '', city: '', area: '' });
   const [error, setError] = useState('');
@@ -36,6 +43,7 @@ export default function DoctorSchedulePage() {
     const [ch, sc] = await Promise.all([scheduleApi.listChambers(), scheduleApi.listMySchedules()]);
     setChambers(ch.chambers);
     setSchedules(sc.schedules);
+    setLoaded(true);
     if (ch.chambers.length && !form.chamberId) {
       setForm((f) => ({ ...f, chamberId: ch.chambers[0].id }));
     }
@@ -109,23 +117,42 @@ export default function DoctorSchedulePage() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm('Remove this availability block?')) return;
+  async function runConfirmed() {
+    const { kind, schedule } = confirm;
     setError('');
+    const res =
+      kind === 'delete'
+        ? await scheduleApi.deleteSchedule(schedule.id)
+        : await scheduleApi.setScheduleStatus(schedule.id, 'inactive');
+    const n = res.cancelledBookings || 0;
+    setMessage(
+      kind === 'delete'
+        ? `Availability removed${n ? `; ${n} booked patient${n === 1 ? ' was' : 's were'} cancelled and notified` : ''}`
+        : `Schedule paused${n ? `; ${n} booked patient${n === 1 ? ' was' : 's were'} cancelled and notified` : ''}`
+    );
+    setConfirm(null);
+    await load();
+  }
+
+  async function handleToggleStatus(schedule) {
+    setError('');
+    if (schedule.status === 'active') {
+      setConfirm({ kind: 'pause', schedule });
+      return;
+    }
     try {
-      await scheduleApi.deleteSchedule(id);
-      setMessage('Availability removed');
+      await scheduleApi.setScheduleStatus(schedule.id, 'active');
       await load();
     } catch (err) {
       setError(err.message);
     }
   }
 
-  async function handleToggleStatus(schedule) {
+  async function handleReopen(schedule, date) {
     setError('');
-    const next = schedule.status === 'active' ? 'inactive' : 'active';
     try {
-      await scheduleApi.setScheduleStatus(schedule.id, next);
+      await scheduleApi.reopenDay(schedule.id, date);
+      setMessage(`${date} is open for bookings again`);
       await load();
     } catch (err) {
       setError(err.message);
@@ -134,9 +161,7 @@ export default function DoctorSchedulePage() {
 
   if (!user) {
     return (
-      <div className="ss-page flex items-center justify-center text-ss-muted">
-        Loading…
-      </div>
+      <PageSkeleton />
     );
   }
 
@@ -254,20 +279,64 @@ export default function DoctorSchedulePage() {
                   <span className={s.status === 'active' ? 'ss-badge-active mt-1' : 'ss-badge-inactive mt-1'}>
                     {s.status}
                   </span>
+                  {s.closedDates?.length ? (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {s.closedDates.map((c) => (
+                        <span key={c.date} className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs text-red-200" title={c.reason}>
+                          Closed {c.date}
+                          <button type="button" onClick={() => handleReopen(s, c.date)} className="font-semibold underline">
+                            Reopen
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
                 <div className="flex gap-2">
                   <button type="button" onClick={() => handleToggleStatus(s)} className="ss-btn-secondary px-3 py-1.5">
                     {s.status === 'active' ? 'Deactivate' : 'Activate'}
                   </button>
-                  <button type="button" onClick={() => handleDelete(s.id)} className="ss-btn-danger-outline">
+                  <button type="button" onClick={() => setCancelDayFor(s)} disabled={s.status !== 'active'} className="ss-btn-secondary px-3 py-1.5 disabled:opacity-40">
+                    Cancel a day
+                  </button>
+                  <button type="button" onClick={() => setConfirm({ kind: 'delete', schedule: s })} className="ss-btn-danger-outline">
                     Delete
                   </button>
                 </div>
               </li>
             ))}
-            {!schedules.length ? <li className="text-sm text-ss-muted">No schedules yet.</li> : null}
+            {!loaded ? <li><ListSkeleton rows={2} lines={1} label="Loading your schedules" /></li> : null}
+            {loaded && !schedules.length ? <li className="text-sm text-ss-muted">No schedules yet.</li> : null}
           </ul>
         </section>
+      <ConfirmDialog
+        open={Boolean(confirm)}
+        title={confirm?.kind === 'delete' ? 'Remove this availability?' : 'Pause this schedule?'}
+        message={
+          <>
+            <p>
+              Patients who already booked a future serial in this block will be <strong>cancelled and notified</strong> (in-app and
+              SMS) with the next available slot.
+            </p>
+            <p className="mt-2">You can change your mind later by creating or activating the schedule again.</p>
+          </>
+        }
+        confirmLabel={confirm?.kind === 'delete' ? 'Remove and notify' : 'Pause and notify'}
+        onConfirm={runConfirmed}
+        onClose={() => setConfirm(null)}
+      />
+      {cancelDayFor ? (
+        <CancelDayDialog
+          schedule={cancelDayFor}
+          onClose={() => setCancelDayFor(null)}
+          onDone={async (res) => {
+            const n = res.cancelledBookings || 0;
+            setMessage(`${res.date} cancelled${n ? `; ${n} patient${n === 1 ? '' : 's'} notified` : ''}`);
+            setCancelDayFor(null);
+            await load();
+          }}
+        />
+      ) : null}
     </AppShell>
   );
 }
