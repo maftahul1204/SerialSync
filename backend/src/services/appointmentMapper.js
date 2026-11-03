@@ -12,6 +12,11 @@ async function toAppointmentJSON(doc, { doctor, chamber, schedule } = {}) {
     status: doc.status,
     confirmationCode: doc.confirmationCode,
     patientNote: doc.patientNote || '',
+    cancelledBy: doc.cancelledBy || null,
+    cancelReason: doc.cancelReason || '',
+    cancelledAt: doc.cancelledAt || null,
+    familyMemberId: doc.familyMember ? doc.familyMember.toString() : null,
+    bookedForName: doc.bookedForName || '',
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
