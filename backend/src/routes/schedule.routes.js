@@ -14,6 +14,8 @@ router.get('/me', requireRole('doctor', 'admin'), requireApprovedDoctor, schedul
 router.post('/', requireRole('doctor', 'admin'), requireApprovedDoctor, scheduleController.createSchedule);
 router.patch('/:id', requireRole('doctor', 'admin'), requireApprovedDoctor, scheduleController.updateSchedule);
 router.delete('/:id', requireRole('doctor', 'admin'), requireApprovedDoctor, scheduleController.deleteSchedule);
+router.post('/:id/cancel-day', requireRole('doctor', 'admin'), requireApprovedDoctor, scheduleController.cancelScheduleDay);
+router.delete('/:id/closed-dates/:date', requireRole('doctor', 'admin'), requireApprovedDoctor, scheduleController.reopenScheduleDay);
 router.patch(
   '/:id/status',
   requireRole('doctor', 'admin'),

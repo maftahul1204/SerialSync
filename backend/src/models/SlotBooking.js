@@ -55,6 +55,11 @@ const slotBookingSchema = new mongoose.Schema(
       trim: true,
       maxlength: 32,
     },
+    cancelledBy: { type: String, enum: ['patient', 'doctor', 'admin', 'system'], default: undefined },
+    cancelReason: { type: String, trim: true, maxlength: 300, default: '' },
+    cancelledAt: { type: Date, default: undefined },
+    familyMember: { type: mongoose.Schema.Types.ObjectId, ref: 'FamilyMember', default: null },
+    bookedForName: { type: String, trim: true, maxlength: 120, default: '' },
     patientNote: {
       type: String,
       trim: true,
@@ -68,7 +73,7 @@ slotBookingSchema.index({ schedule: 1, date: 1, slotStart: 1 });
 slotBookingSchema.index({ doctor: 1, date: 1, slotStart: 1 });
 slotBookingSchema.index({ patient: 1, date: -1 });
 slotBookingSchema.index(
-  { patient: 1, schedule: 1, date: 1, slotStart: 1 },
+  { patient: 1, familyMember: 1, schedule: 1, date: 1, slotStart: 1 },
   { unique: true, partialFilterExpression: { status: { $ne: 'cancelled' } } }
 );
 

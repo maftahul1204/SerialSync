@@ -5,6 +5,9 @@ function generateSlotsForScheduleOnDate(schedule, dateYmd) {
   if (!schedule.daysOfWeek.includes(dow)) {
     return [];
   }
+  if ((schedule.closedDates || []).some((c) => c.date === dateYmd)) {
+    return [];
+  }
 
   const duration = schedule.slotDurationMinutes || 15;
   let cursor = timeToMinutes(schedule.startTime);
