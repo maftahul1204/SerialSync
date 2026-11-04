@@ -25,6 +25,23 @@ SerialSync/
   docs/        Milestone notes and traceability
 ```
 
+## Features
+
+Multi-location doctor schedules and search, atomic serial booking with QR pass, live queue (Socket.io + Redis) with
+walk-in `#11B`, delay broadcasts and no-show undo, home diagnostics with signed PDF reports (HMAC links) and result
+trends, family care (book for a family member), in-app notifications with an SMS gateway abstraction, doctor
+day itinerary and end-of-day summary, admin doctor approval, test catalogue management and audit log.
+
+## Run everything with Docker
+
+```bash
+cp .env.example .env        # set JWT_SECRET and REPORT_HMAC_SECRET
+docker compose up --build   # web http://localhost:3000, API http://localhost:5050
+```
+
+Production hardening included: helmet, rate limiting, request logging, readiness probe (`/api/ready`),
+non-root containers, health checks and a GitHub Actions CI pipeline (`.github/workflows/ci.yml`).
+
 ## Quick start (development)
 
 **Prerequisites:** Node.js 20+, MongoDB running locally (or Atlas URI in `backend/.env`).
@@ -34,7 +51,7 @@ SerialSync/
 cd backend
 npm install
 cp .env.example .env
-npm run dev          # http://localhost:5000
+npm run dev          # http://localhost:5050
 
 # Web (new terminal)
 cd frontend
@@ -43,12 +60,18 @@ cp .env.example .env.local
 npm run dev          # http://localhost:3000
 ```
 
-Backend `CLIENT_URL` should match the frontend origin (`http://localhost:3000`). Frontend `NEXT_PUBLIC_API_URL` should point to the API (`http://localhost:5000`).
+Backend `CLIENT_URL` should match the frontend origin (`http://localhost:3000`). Frontend `NEXT_PUBLIC_API_URL` should point to the API (`http://localhost:5050`).
 
-## Current milestone
+Seed test users, schedules, and diagnostic catalog:
 
-Sprint 3 — appointment booking (search, profile, book, confirm, history, cancel).  
-See [docs/MILESTONE_BOOKING.md](./docs/MILESTONE_BOOKING.md). Prior: [schedule](./docs/MILESTONE_SCHEDULE.md), [auth](./docs/MILESTONE_AUTH.md).
+```bash
+cd backend && npm run seed:test-users
+```
+
+## SRS feature coverage
+
+Full project (auth, schedules, booking, **live queue**, **home diagnostics**, admin).  
+See [docs/MILESTONE_FULL_SRS.md](./docs/MILESTONE_FULL_SRS.md). **UI / SRS figures:** [Figma file](https://www.figma.com/design/vR4DaYPMmYq2EMyNGTOyx1/Untitled?node-id=4-4688), [DESIGN.md](./docs/DESIGN.md), [SRS_GUI_FIGURES.md](./docs/SRS_GUI_FIGURES.md). Earlier milestones: [booking](./docs/MILESTONE_BOOKING.md), [schedule](./docs/MILESTONE_SCHEDULE.md), [auth](./docs/MILESTONE_AUTH.md).
 
 | Layer | Docs |
 |-------|------|
