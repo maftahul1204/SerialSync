@@ -1,0 +1,53 @@
+# Full local stack:  docker compose up --build
+# Web http://localhost:3000   API http://localhost:5050
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      PORT: 5050
+      MONGODB_URI: mongodb://mongo:27017/serialsync
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      REPORT_HMAC_SECRET: ${REPORT_HMAC_SECRET:?set REPORT_HMAC_SECRET in .env}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      SMS_PROVIDER: ${SMS_PROVIDER:-console}
+      TRUST_PROXY: "true"
+    volumes: [report-data:/app/storage/reports]
+    ports: ["5050:5050"]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:5050}
+    restart: unless-stopped
+    depends_on: [backend]
+    ports: ["3000:3000"]
+
+volumes:
+  mongo-data:
+  report-data:
