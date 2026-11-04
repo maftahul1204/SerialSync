@@ -6,9 +6,11 @@ import { useState } from 'react';
 import Alert from '@/components/Alert';
 import AuthLayout from '@/components/auth/AuthLayout';
 import IconField, { LockIcon, MailIcon, PhoneIcon } from '@/components/auth/IconField';
+import DocumentUploads from '@/components/doctor/DocumentUploads';
 import FormField from '@/components/FormField';
 import { authApi } from '@/lib/api';
 import { homePathForRole } from '@/lib/authRedirect';
+import { missingRequiredDocuments, validateDocumentFile } from '@/lib/documents';
 import { validateRegistration } from '@/lib/validation';
 
 export default function RegisterPage() {
@@ -21,7 +23,11 @@ export default function RegisterPage() {
     password: '',
     specialtySlug: 'medicine',
     affiliations: '',
+    bmdcNumber: '',
+    degrees: '',
+    experienceYears: '',
   });
+  const [files, setFiles] = useState({});
 
   const specialtyOptions = [
     { slug: 'cardiology', title: 'Cardiologist' },
@@ -43,18 +49,48 @@ export default function RegisterPage() {
       setError(clientError);
       return;
     }
+    if (role === 'doctor') {
+      if (!/^[A-Za-z0-9-]{4,30}$/.test(form.bmdcNumber.trim())) {
+        setError('Enter your BMDC registration number (letters, digits or dashes, 4-30 characters)');
+        return;
+      }
+      const missing = missingRequiredDocuments(files);
+      if (missing.length) {
+        setError(`Please attach: ${missing.join(', ')}`);
+        return;
+      }
+      const bad = Object.entries(files).map(([k, f]) => validateDocumentFile(f)).find(Boolean);
+      if (bad) {
+        setError(bad);
+        return;
+      }
+    }
     setError('');
     setLoading(true);
     try {
-      const payload = { ...form, role };
       if (role === 'doctor') {
         const picked = specialtyOptions.find((o) => o.slug === form.specialtySlug);
-        payload.doctorProfile = {
+        const body = new FormData();
+        const fields = {
+          fullName: form.fullName,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+          role: 'doctor',
           specialtyTitle: picked?.title || 'Specialist',
           specialtySlug: form.specialtySlug || 'medicine',
-          affiliations: form.affiliations || '',
+          affiliations: form.affiliations,
+          bmdcNumber: form.bmdcNumber.trim(),
+          degrees: form.degrees,
+          experienceYears: form.experienceYears,
         };
+        Object.entries(fields).forEach(([k, v]) => v !== '' && v !== undefined && body.append(k, v));
+        Object.entries(files).forEach(([k, f]) => f && body.append(k, f));
+        const data = await authApi.registerDoctor(body);
+        router.push(homePathForRole(data.user?.role));
+        return;
       }
+      const payload = { ...form, role };
       const data = await authApi.register(payload);
       router.push(homePathForRole(data.user?.role));
     } catch (err) {
@@ -135,6 +171,31 @@ export default function RegisterPage() {
               onChange={update('affiliations')}
               placeholder="Square Hospital & Green Life"
             />
+            <FormField
+              label="BMDC registration number"
+              id="bmdcNumber"
+              value={form.bmdcNumber}
+              onChange={update('bmdcNumber')}
+              required
+              placeholder="e.g. A-12345"
+            />
+            <FormField
+              label="Degrees"
+              id="degrees"
+              value={form.degrees}
+              onChange={update('degrees')}
+              placeholder="MBBS, FCPS (Cardiology)"
+            />
+            <FormField
+              label="Years of experience"
+              id="experienceYears"
+              type="number"
+              min="0"
+              max="70"
+              value={form.experienceYears}
+              onChange={update('experienceYears')}
+            />
+            <DocumentUploads files={files} onChange={(key, file) => setFiles((f) => ({ ...f, [key]: file }))} />
           </>
         ) : null}
         <button type="submit" disabled={loading} className="ss-btn-primary w-full">

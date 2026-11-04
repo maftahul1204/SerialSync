@@ -1,6 +1,7 @@
 const { test, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
+const { registerDoctor } = require('./helpers/doctorDocs');
 const { connectTestDb, clearScheduleData, disconnectTestDb, approveDoctor } = require('./helpers/testDb');
 const { COOKIE_NAME } = require('../src/utils/jwt');
 
@@ -38,12 +39,7 @@ async function registerAdmin() {
 }
 
 test('pending doctors are hidden from directory until approved', async () => {
-  const reg = await request(app).post('/api/auth/register').send({
-    fullName: 'Dr Pending',
-    email: 'pending-doc@test.com',
-    password: 'password123',
-    role: 'doctor',
-  });
+  const reg = await registerDoctor(app, { fullName: 'Dr Pending', email: 'pending-doc@test.com' });
   assert.equal(reg.body.user.doctorApprovalStatus, 'pending');
 
   const patientReg = await request(app).post('/api/auth/register').send({
@@ -69,12 +65,7 @@ test('pending doctors are hidden from directory until approved', async () => {
 });
 
 test('pending doctor cannot create chambers', async () => {
-  const reg = await request(app).post('/api/auth/register').send({
-    fullName: 'Dr Blocked',
-    email: 'blocked-doc@test.com',
-    password: 'password123',
-    role: 'doctor',
-  });
+  const reg = await registerDoctor(app, { fullName: 'Dr Blocked', email: 'blocked-doc@test.com' });
   const cookie = authCookie(reg);
   const res = await request(app)
     .post('/api/chambers')
@@ -85,12 +76,7 @@ test('pending doctor cannot create chambers', async () => {
 });
 
 test('admin lists pending doctors and can reject', async () => {
-  await request(app).post('/api/auth/register').send({
-    fullName: 'Dr Review',
-    email: 'review-doc@test.com',
-    password: 'password123',
-    role: 'doctor',
-  });
+  await registerDoctor(app, { fullName: 'Dr Review', email: 'review-doc@test.com' });
   const adminCookie = await registerAdmin();
   const list = await request(app).get('/api/admin/doctors?status=pending').set('Cookie', adminCookie);
   assert.equal(list.status, 200);
@@ -99,7 +85,7 @@ test('admin lists pending doctors and can reject', async () => {
   const reject = await request(app)
     .patch(`/api/admin/doctors/${doctorId}/approval`)
     .set('Cookie', adminCookie)
-    .send({ status: 'rejected' });
+    .send({ status: 'rejected', note: 'BMDC number could not be verified' });
   assert.equal(reject.status, 200);
   assert.equal(reject.body.doctor.doctorApprovalStatus, 'rejected');
 });

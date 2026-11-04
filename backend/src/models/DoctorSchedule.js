@@ -63,6 +63,17 @@ const doctorScheduleSchema = new mongoose.Schema(
       trim: true,
       maxlength: 500,
     },
+    closedDates: {
+      type: [
+        {
+          date: { type: String, match: [/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'], required: true },
+          reason: { type: String, trim: true, maxlength: 300, default: '' },
+          createdAt: { type: Date, default: Date.now },
+          _id: false,
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );
@@ -91,6 +102,7 @@ doctorScheduleSchema.methods.toPublicJSON = function toPublicJSON(chamberDoc) {
     patientsPerSlot: this.patientsPerSlot,
     status: this.status,
     notes: this.notes || '',
+    closedDates: (this.closedDates || []).map((c) => ({ date: c.date, reason: c.reason })),
     updatedAt: this.updatedAt,
   };
 };

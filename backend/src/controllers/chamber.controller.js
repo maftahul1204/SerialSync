@@ -1,5 +1,24 @@
 const { Chamber } = require('../models/Chamber');
 
+async function listChamberDirectory(req, res, next) {
+  try {
+    const chambers = await Chamber.find({ isActive: true })
+      .populate('doctor', 'fullName')
+      .sort({ name: 1 })
+      .limit(200);
+    return res.json({
+      success: true,
+      chambers: chambers.map((c) => ({
+        ...c.toPublicJSON(),
+        doctorId: (c.doctor._id || c.doctor).toString(),
+        doctorName: c.doctor.fullName || '',
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function listMyChambers(req, res, next) {
   try {
     const chambers = await Chamber.find({ doctor: req.user._id }).sort({ name: 1 });
@@ -52,4 +71,4 @@ async function updateChamber(req, res, next) {
   }
 }
 
-module.exports = { listMyChambers, createChamber, updateChamber };
+module.exports = { listChamberDirectory, listMyChambers, createChamber, updateChamber };

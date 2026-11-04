@@ -13,14 +13,12 @@ API:      http://localhost:5050 (or PORT from backend/.env)
   Email:    admin@serialsync.test
   Password: TestPass123!
   Role:     admin
-  User ID:  6ac6b56633a6b4ff805bbe98
 
 [Patient]
   Name:     Adil Rahman
   Email:    patient@serialsync.test
   Password: TestPass123!
   Role:     patient
-  User ID:  6ac6b56733a6b4ff805bbe9b
 
 [Doctor (approved)]
   Name:     Dr. Nusrat Jahan
@@ -29,7 +27,6 @@ API:      http://localhost:5050 (or PORT from backend/.env)
   Role:     doctor
   Approval: approved
   Specialty: Cardiologist
-  User ID:  6ac6b56733a6b4ff805bbe9e
 
 [Doctor (approved)]
   Name:     Dr. Tanveer Masud
@@ -38,7 +35,6 @@ API:      http://localhost:5050 (or PORT from backend/.env)
   Role:     doctor
   Approval: approved
   Specialty: General Surgeon
-  User ID:  6ac6b56733a6b4ff805bbea1
 
 [Doctor (pending — for admin approval testing)]
   Name:     Dr. Pending Review
@@ -47,24 +43,68 @@ API:      http://localhost:5050 (or PORT from backend/.env)
   Role:     doctor
   Approval: pending
   Specialty: Physician
-  User ID:  6ac6b56733a6b4ff805bbea4
+
+[Patient (demo)]
+  Name:     Sara Khan
+  Email:    patient.sara@serialsync.test
+  Password: TestPass123!
+  Role:     patient
+
+[Patient (demo)]
+  Name:     Imran Hossain
+  Email:    patient.imran@serialsync.test
+  Password: TestPass123!
+  Role:     patient
+
+[Patient (demo)]
+  Name:     Nadia Islam
+  Email:    patient.nadia@serialsync.test
+  Password: TestPass123!
+  Role:     patient
+
+[Doctor (approved, paediatrics)]
+  Name:     Dr. Sultana Rahman
+  Email:    doctor.sultana@serialsync.test
+  Password: TestPass123!
+  Role:     doctor
+  Approval: approved
+  Specialty: Pediatrician
+
+[Doctor (pending — documents submitted)]
+  Name:     Dr. Farhan Ahmed
+  Email:    doctor.farhan@serialsync.test
+  Password: TestPass123!
+  Role:     doctor
+  Approval: pending
+  Specialty: Ophthalmologist
+
+[Doctor (rejected — can resubmit documents)]
+  Name:     Dr. Rafiq Mia
+  Email:    doctor.rafiq@serialsync.test
+  Password: TestPass123!
+  Role:     doctor
+  Approval: rejected
+  Specialty: Physician
 
 [Clinic / queue assistant]
   Name:     Green Life Clinic Desk
   Email:    clinic@serialsync.test
   Password: TestPass123!
   Role:     assistant
-  User ID:  6ac6b56833a6b4ff805bbea7
 
 [Sample collector (phlebotomist)]
   Name:     Rahim Collector
   Email:    collector@serialsync.test
   Password: TestPass123!
   Role:     phlebotomist
-  User ID:  6ac6b56833a6b4ff805bbeaa
 
 Notes:
 - Patients sign in → /home (doctor search).
 - Doctors/admins → /dashboard. Pending doctors cannot use schedule until admin approves.
 - Approve pending doctors at /dashboard/admin (sign in as admin).
 - Clinic = assistant role; Collector = phlebotomist role (dashboard flows in later sprints).
+- Approved doctors Nusrat, Tanveer & Sultana have chambers + active schedules for booking.
+- Demo data: patient@serialsync.test has past/today/upcoming bookings, cancelled-by-doctor and cancelled-by-patient examples,
+  family members, a live queue at Dr. Nusrat today (serial #5), 3 signed lab reports with trend data, a collector order en route,
+  notifications and shared reports. Admin sees pending/rejected doctors with uploaded documents and an audit log.
+- Re-run `npm run seed:test-users` any time: demo records are recreated, never duplicated.

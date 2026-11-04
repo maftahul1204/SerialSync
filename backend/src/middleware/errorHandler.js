@@ -8,6 +8,15 @@ function errorHandler(err, req, res, next) {
     return res.status(400).json({ success: false, message: messages.join(', ') });
   }
 
+  if (err.name === 'MulterError') {
+    const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({ success: false, message: err.message });
+  }
+
+  if (err.name === 'CastError') {
+    return res.status(400).json({ success: false, message: `Invalid ${err.path || 'id'}` });
+  }
+
   if (err.code === 11000) {
     const message =
       err.keyPattern && err.keyPattern.name

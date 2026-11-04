@@ -21,6 +21,9 @@ export default function BookingCard({ appointment, onCancel, busy }) {
             Serial #{appointment.serialNumber ?? '—'}
           </p>
           <h3 className="mt-1 text-lg font-semibold text-ss-text">{appointment.doctor?.fullName}</h3>
+          {appointment.bookedForName ? (
+            <p className="text-xs text-ss-muted">Booked for {appointment.bookedForName}</p>
+          ) : null}
           <p className="text-sm text-ss-muted">{appointment.chamber?.name}</p>
         </div>
         <span className={cancelled ? 'ss-badge-inactive' : 'ss-badge-active'}>
@@ -49,11 +52,24 @@ export default function BookingCard({ appointment, onCancel, busy }) {
           <dd className="font-mono text-xs text-ss-text">{appointment.confirmationCode}</dd>
         </div>
       </dl>
+      {cancelled ? (
+        <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+          <p className="font-semibold">
+            Cancelled by {appointment.cancelledBy === 'doctor' ? 'the doctor' : appointment.cancelledBy === 'admin' ? 'an administrator' : 'you'}
+          </p>
+          {appointment.cancelReason ? <p className="mt-0.5 text-red-200/90">Reason: {appointment.cancelReason}</p> : null}
+          {appointment.cancelledBy !== 'patient' ? (
+            <Link href={`/doctors/${appointment.doctorId}/schedule`} className="mt-2 inline-block font-semibold text-ss-primary underline">
+              Book the next available slot →
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         <Link href={`/bookings/${appointment.id}`} className="ss-btn-secondary px-3 py-1.5 text-sm">
           View details
         </Link>
-        {!cancelled && onCancel ? (
+        {['booked', 'confirmed'].includes(appointment.status) && onCancel ? (
           <button
             type="button"
             disabled={busy}

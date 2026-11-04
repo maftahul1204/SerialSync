@@ -5,8 +5,11 @@ import { useCallback, useEffect, useState } from 'react';
 import Alert from '@/components/Alert';
 import AppHeader from '@/components/AppHeader';
 import AppShell from '@/components/AppShell';
+import DoctorReviewDialog from '@/components/admin/DoctorReviewDialog';
+import ReasonDialog from '@/components/ReasonDialog';
 import { adminApi, authApi } from '@/lib/api';
 
+import { ListSkeleton, PageSkeleton } from '@/components/Loading';
 const TABS = [
 	{ id: 'pending', label: 'Pending' },
 	{ id: 'approved', label: 'Approved' },
@@ -32,6 +35,9 @@ export default function AdminDoctorsPage() {
 	});
 	const [error, setError] = useState('');
 	const [busyId, setBusyId] = useState('');
+	const [reviewId, setReviewId] = useState('');
+	const [loaded, setLoaded] = useState(false);
+	const [rejectId, setRejectId] = useState('');
 
 	const load = useCallback(async () => {
 		setError('');
@@ -41,6 +47,8 @@ export default function AdminDoctorsPage() {
 			setCounts(data.counts || { pending: 0, approved: 0, rejected: 0 });
 		} catch (err) {
 			setError(err.message || 'Failed to load doctors');
+		} finally {
+			setLoaded(true);
 		}
 	}, [tab]);
 
@@ -78,9 +86,7 @@ export default function AdminDoctorsPage() {
 
 	if (!user) {
 		return (
-			<div className='ss-page flex min-h-screen items-center justify-center text-ss-muted'>
-				Loading admin panel…
-			</div>
+			<PageSkeleton />
 		);
 	}
 
@@ -141,7 +147,17 @@ export default function AdminDoctorsPage() {
 								{doc.doctorApprovalStatus || 'pending'}
 							</span>
 						</div>
-						<div className='flex flex-wrap gap-2'>
+						<div className='flex flex-wrap items-center gap-2'>
+							<span className='text-xs text-ss-muted'>
+								{doc.documents?.length || 0} document
+								{(doc.documents?.length || 0) === 1 ? '' : 's'}
+							</span>
+							<button
+								type='button'
+								onClick={() => setReviewId(doc.id)}
+								className='ss-btn-secondary px-4 py-2 text-sm'>
+								View details
+							</button>
 							{doc.doctorApprovalStatus !== 'approved' ? (
 								<button
 									type='button'
@@ -155,29 +171,45 @@ export default function AdminDoctorsPage() {
 								<button
 									type='button'
 									disabled={busyId === doc.id}
-									onClick={() => setApproval(doc.id, 'rejected')}
+									onClick={() => setRejectId(doc.id)}
 									className='ss-btn-danger-outline px-4 py-2 text-sm'>
 									Reject
-								</button>
-							) : null}
-							{doc.doctorApprovalStatus === 'rejected' ? (
-								<button
-									type='button'
-									disabled={busyId === doc.id}
-									onClick={() => setApproval(doc.id, 'approved')}
-									className='ss-btn-secondary px-4 py-2 text-sm'>
-									Approve anyway
 								</button>
 							) : null}
 						</div>
 					</li>
 				))}
-				{!doctors.length ? (
+				{!loaded ? (
+					<li>
+						<ListSkeleton rows={3} lines={1} label='Loading doctors' />
+					</li>
+				) : null}
+				{loaded && !doctors.length ? (
 					<li className='ss-card p-6 text-sm text-ss-muted'>
 						No doctors in this list.
 					</li>
 				) : null}
 			</ul>
+			{reviewId ? (
+				<DoctorReviewDialog
+					doctorId={reviewId}
+					onClose={() => setReviewId('')}
+					onChanged={load}
+				/>
+			) : null}
+			<ReasonDialog
+				open={Boolean(rejectId)}
+				title='Reject doctor registration'
+				message='The doctor is notified with this reason and can re-upload documents.'
+				confirmLabel='Reject doctor'
+				placeholder='e.g. BMDC number could not be verified'
+				onConfirm={async (reason) => {
+					await adminApi.setDoctorApproval(rejectId, 'rejected', reason);
+					setRejectId('');
+					await load();
+				}}
+				onClose={() => setRejectId('')}
+			/>
 		</AppShell>
 	);
 }
