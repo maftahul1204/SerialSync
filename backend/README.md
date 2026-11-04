@@ -12,33 +12,22 @@ cp .env.example .env
 npm run dev
 ```
 
-API base: `http://localhost:5000`
+API base: `http://localhost:5050` (see `PORT` in `.env`)
 
-## Auth endpoints
+Full **REST API & integration testing** reference (SRS Ch. 6–7 aligned):
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/register` | Register (`fullName`, `email`, `password`, optional `phone`, `role`) |
-| POST | `/api/auth/login` | Login — sets HTTP-only JWT cookie |
-| POST | `/api/auth/logout` | Clears session cookie |
-| GET | `/api/auth/me` | Current user (cookie or `Authorization: Bearer`) |
-| POST | `/api/auth/forgot-password` | Request reset (dev returns `resetToken`) |
-| POST | `/api/auth/reset-password` | `{ token, password }` |
-| POST | `/api/auth/change-password` | Authenticated `{ currentPassword, newPassword }` |
+- Markdown: [`docs/API_AND_TESTING.md`](../docs/API_AND_TESTING.md)
+- PDF: [`SerialSync_API_and_Testing_Documentation.pdf`](../SerialSync_API_and_Testing_Documentation.pdf)
 
-## Profile & RBAC
+Regenerate PDF after doc changes:
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/users/me` | Profile |
-| PATCH | `/api/users/me` | Update `fullName`, `phone` |
-| GET | `/api/users/admin/overview` | **Admin only** — RBAC check |
+```bash
+.venv-pdf/bin/python scripts/generate_api_testing_pdf.py
+```
 
-Roles: `patient`, `doctor`, `assistant`, `phlebotomist`, `admin`.
+## Tests
 
-## Tests (QA — auth epic)
-
-Integration tests cover registration, login, logout, password reset, RBAC, and profile (`test/auth.test.js`).
+37 Supertest integration tests (`test/*.test.js`) — auth, schedules, booking, doctors, admin, queue, diagnostics, appointments/QR.
 
 ```bash
 npm test
